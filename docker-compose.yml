@@ -1,0 +1,58 @@
+jupyter:
+  build: ./jupyter
+  ports:
+    - "0.0.0.0:8888:8888"
+    - "0.0.0.0:6006:6006"
+  volumes:
+    - ./libs:/home/ds/notebooks/libs
+    - ./jupyter:/home/ds/notebooks
+    - ./jupyter/jupyter:/home/ds/.jupyter
+  restart: always
+  environment:
+    - MONGO_HOST=ds021166.mlab.com
+    - MONGO_PORT=21166
+    - MONGO_USER=webir-user
+    - MONGO_PASS=2qdCWrShyzNSpsV
+    - MONGO_COLL=api-data
+
+#Web
+web:
+  build: ./web
+  ports:
+    - "0.0.0.0:8080:8080"
+  volumes:
+    - ./web:/usr/src/web
+  #command: npm start
+
+
+
+#Servidor
+server:
+  build: ./server
+  ports:
+    - "0.0.0.0:8890:6666"
+  volumes:
+    - ./libs:/opt/libs
+    - ./server:/opt
+  #command: python -u /opt/runRest.py
+  environment:
+    - MONGO_HOST=ds021166.mlab.com
+    - MONGO_PORT=21166
+    - MONGO_USER=webir-user
+    - MONGO_PASS=2qdCWrShyzNSpsV
+    - MONGO_COLL=api-data
+    - MONGO_DATABASE=webir-2016
+
+football-api-communication:
+ build: ./football-api-communication
+ volumes:
+   - ./football-api-communication:/opt
+   - ./libs:/opt/libs
+ command: python -u /opt/apiConnection.py
+ environment:
+    - MONGO_HOST=ds021166.mlab.com
+    - MONGO_PORT=21166
+    - MONGO_USER=webir-user
+    - MONGO_PASS=2qdCWrShyzNSpsV
+    - MONGO_COLL=api-data
+    - MONGO_DATABASE=webir-2016

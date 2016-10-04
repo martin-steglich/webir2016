@@ -1,0 +1,59 @@
+<div class="col-md-6 col-md-offset-3 btn-group" ng-show="success">
+            <div  class="col-md-2 col-md-offset-1 col-xs-3" >
+                <button type="button" class="btn btn-block btn-primary btn-danger" ng-click="selectClassification('NO_UTIL')" uib-tooltip="NADA ÚTIL">
+                    <span class="glyphicon glyphicon-thumbs-down"></span>
+                    <span class="glyphicon glyphicon-thumbs-down"></span>
+                </button>
+            </div>
+
+            <div  class="col-md-2 col-xs-2" >
+                <button type="button" class="btn btn-block btn-primary btn-warning" ng-click="selectClassification('POCO_UTIL')" uib-tooltip="POCO ÚTIL">
+                    <span class="glyphicon glyphicon-thumbs-down"></span>
+                </button>
+            </div>
+
+            <div  class="col-md-2 col-xs-2" >
+                <button type="button" class="btn btn-block btn-default"
+                        ng-click="noClasificar()" uib-tooltip="SALTAR">
+                    <span class="glyphicon glyphicon-ban-circle"></span>
+                </button>
+            </div>
+
+            <div  class="col-md-2 col-xs-2" >
+                <button type="button" class="btn btn-block btn-primary btn-info" ng-click="selectClassification('UTIL')" uib-tooltip="ÚTIL">
+                    <span class="glyphicon glyphicon-thumbs-up"></span>
+                </button>
+            </div>
+
+            <div  class="col-md-2 col-xs-3" >
+                <button type="button" class="btn btn-block btn-primary btn-primary" ng-click="selectClassification('MUY_UTIL')" uib-tooltip="MUY ÚTIL">
+                    <span class="glyphicon glyphicon-thumbs-up"></span>
+                    <span class="glyphicon glyphicon-thumbs-up"></span>
+                </button>
+            </div>
+    </div>
+
+    <div  class="col-md-4 col-md-offset-4" style="padding-top: 3%" ng-show="success">
+            <div  id="{{'post_' + tweetid}}"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3" ng-show="success">
+            <legend>{{info.krypton_classified}}/{{info.total}} tweets clasificados
+                <button type="button" class="btn btn-xs btn-default" ng-click="isCollapsed = !isCollapsed" style="margin-top: 3%; margin-bottom: 3%" uib-tooltip="Instrucciones">
+                    <span class="glyphicon glyphicon-expand"></span>
+                </button>
+            </legend>
+            <div uib-collapse="isCollapsed" >
+                <div class="well well-lg">
+                    LOREM IPSUM
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="col-md-6 col-md-offset-3" ng-show="!success && !loading">
+        <strong>:( Tuvimos un problema... </strong>{{tweet.error}}
+    </div>
