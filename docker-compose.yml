@@ -1,8 +1,8 @@
 jupyter:
   build: ./jupyter
   ports:
-    - "0.0.0.0:8888:8888"
-    - "0.0.0.0:6006:6006"
+    - "0.0.0.0:8889:8888"
+    - "0.0.0.0:6007:6006"
   volumes:
     - ./libs:/home/ds/notebooks/libs
     - ./jupyter:/home/ds/notebooks

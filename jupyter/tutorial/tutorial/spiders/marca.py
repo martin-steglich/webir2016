@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from scrapy.spider import BaseSpider
 from scrapy.selector import HtmlXPathSelector
 from tutorial.items import TutorialItem
@@ -5,6 +7,7 @@ from scrapy import Selector
 import re
 from pymongo import MongoClient
 import os
+from unidecode import unidecode
 
 
 
@@ -27,18 +30,20 @@ class MarcaSpider(BaseSpider):
         sel = Selector(text = news_list_str, type = 'html')
         items = []
         for news in sel.xpath('//li//article'):
-            team = re.sub('^[\s]|[\n]', '', news.css('[class=ribbon] span::text').extract()[1])
-            if team != 'LALIGA SANTANDER':
+            team = re.sub('^[\s]|[\n]', '', news.css('[class=ribbon] span::text').extract()[1]).lower()
+            teams = self.get_team(team)
+            if teams:
                 title = news.css('[class=mod-header]').css('[class=mod-title] a::text').extract()[0].replace('\n','')
                 url = news.css('[class=mod-header]').css('[class=mod-title] a::attr(href)').extract()[0].replace('\n','')
                 image = news.css('[class=multimedia-item]').css('img::attr(src)').extract()[0]
-                item = {}
-                item['team'] = team
-                item['title'] = title
-                item['url'] = url
-                item['image'] = image
-                item['source'] = 'Marca'
-                items.append(item)
+                for t in teams:
+                    item = {}
+                    item['team'] = t
+                    item['title'] = title
+                    item['url'] = url
+                    item['image'] = image
+                    item['source'] = 'Marca'
+                    items.append(item)
         
         self.database_connection().insert_many(items)
 
@@ -63,3 +68,35 @@ class MarcaSpider(BaseSpider):
         news_data = db['news-data']
 
         return news_data
+
+    def get_team(self, team):
+        teamsList = ['alaves', 'athletic', 'atletico', 'betis', 'celta', 'deportivo', 'eibar', 
+        'barcelona', 'granada','leganes', 'malaga', 'osasuna', 'real', 'espanyol', 'real', 
+        'sevilla', 'sporting', 'palmas', 'valencia', 'villarreal']
+        teams = None
+        team = re.sub('\d', '', team).lower()
+        team = re.sub(' +',' ',team)
+        team = unidecode(team)
+        if '-' in team:
+            for t in team.split('-'):
+                isTeam = False
+                for word in re.sub('^[\s]|[\s]$', '', t).split(' '):
+                    if word in teamsList:
+                        isTeam = True
+
+                if isTeam:
+                    if teams == None:
+                        teams = []
+                    teams.append(re.sub('^[\s]|[\s]$', '', t))
+        else:
+            isTeam = False
+            for word in re.sub('^[\s]|[\s]$', '', team).split(' '):
+                if word in teamsList:
+                    isTeam = True
+
+            if isTeam:
+                if teams == None:
+                    teams = []
+                teams.append(re.sub('^[\s]|[\s]$', '', team))
+
+        return teams
