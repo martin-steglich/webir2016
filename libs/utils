@@ -1,0 +1,25 @@
+from pymongo import MongoClient
+import os
+
+
+
+
+
+def database_connection(self):
+    script = os.path.basename(__file__)
+
+    #DB NER
+    dbdb = os.getenv('MONGO_DATABASE',None)
+    dbhost = os.getenv('MONGO_HOST',None)
+    dbport = os.getenv('MONGO_PORT',None)
+    dbuser = os.getenv('MONGO_USER',None)
+    dbpass = os.getenv('MONGO_PASS',None)
+    dbcoll = os.getenv('MONGO_COLL',None)
+
+    
+    #Info corridas
+    otherClient = MongoClient('mongodb://'+dbuser+':'+dbpass+'@'+dbhost+':'+dbport+'/'+dbdb)
+    db = otherClient[dbdb]
+    news_data = db['news-data']
+
+    return news_data    

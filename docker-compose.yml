@@ -14,6 +14,7 @@ jupyter:
     - MONGO_USER=webir-user
     - MONGO_PASS=2qdCWrShyzNSpsV
     - MONGO_COLL=api-data
+    - MONGO_DATABASE=webir-2016
 
 #Web
 web:
@@ -48,7 +49,7 @@ football-api-communication:
  volumes:
    - ./football-api-communication:/opt
    - ./libs:/opt/libs
- command: python -u /opt/apiConnection.py
+ #command: python -u runspider /opt/marca.py
  environment:
     - MONGO_HOST=ds021166.mlab.com
     - MONGO_PORT=21166
