@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from scrapy.spider import Spider
+from scrapy.spider import BaseSpider
 from scrapy.selector import HtmlXPathSelector
 from tutorial.items import TutorialItem
 from scrapy import Selector
@@ -10,13 +10,9 @@ import os
 from unidecode import unidecode
 
 
-class GazzettaSpider(Spider):
+class GazzettaSpider(BaseSpider):
 	teamsList = ['Atalanta', 'Bologna', 'Cagliari', 'Chievo', 'Crotone', 'Empoli', 'Fiorentina', 'Genoa', 'Inter',
 	'Juventus', 'Lazio', 'Milan', 'Napoli', 'Palermo', 'Pescara', 'Roma', 'Sampdoria', 'Sassuolo', 'Torino', 'Udinese']
-	teams_dict = {'juventus fc': 109,'as roma': 100,'ac milan': 98,'torino fc': 586,'ssc napoli': 113,'ss lazio': 110,
-	'ac chievo': 106,'cagliari': 104,'genoa': 107,'us sassuolo': 471,'inter fc': 108,'bologna fc': 103,'atalanta': 102,
-	'fiorentina': 99,'sampdoria': 584,'pescara': 585,'udinese': 115,'palermo': 114,'empoli': 445,'crotone': 472} 
-
 
 	name = "gazzetta"
 	allowed_domains = ["gazzetta.it"]
@@ -34,7 +30,7 @@ class GazzettaSpider(Spider):
 			item['image'] = article.css('[class=u024-article-image-column]').css('[class=image-container]').css('a').css('[class=embed-container]').css('img::attr(src)').extract()[0]
 			item['url'] = 	article.css('[class=u024-article-image-column]').css('[class=image-container]').css('a::attr(href)').extract()[0]
 			item['title'] = article.css('[class=titoli]').css('header')[0].css('[class=title]').css('a::text').extract()[0]
-			item['team'] = self.teams_dict[team]
+			item['team'] = team
 			item['source'] = 'Gazzetta'
 			items.append(item)
 		self.database_connection().insert_many(items)

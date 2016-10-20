@@ -23,7 +23,7 @@ web:
     - "0.0.0.0:8080:8080"
   volumes:
     - ./web:/usr/src/web
-  #command: npm start
+  command: npm start
 
 
 
@@ -35,7 +35,7 @@ server:
   volumes:
     - ./libs:/opt/libs
     - ./server:/opt
-  #command: python -u /opt/runRest.py
+  command: python -u /opt/runRest.py
   environment:
     - MONGO_HOST=ds021166.mlab.com
     - MONGO_PORT=21166

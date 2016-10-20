@@ -12,7 +12,7 @@
     <base href="/">
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Clasificación Tweets - Krypton</title>
+    <title>Webir - 2016</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/normalize.css">
@@ -35,17 +35,29 @@
 </head>
 <body>
 
-<div ng-app="App" ng-controller='IndexCtrl' ng-cloak class="container-fluid">
+<div ng-app="App" ng-controller='AppCtrl' ng-cloak class="container-fluid">
 
     <div class="page-header">
-        <h1>krypton
-            <small>Clasificación Tweets</small>
+        <h1>Webir
+            <small>2016</small>
         </h1>
 
     </div>
 
+    <div class="col-md-6 col-md-offset-3 btn-group" ng-show="success">
 
-    <ng-view></ng-view>
+
+        <table>
+            <tbody ng-repeat="i in leagues">
+            <tr><td>{{i.leagueCaption}}</td><td>{{$index}}</td></tr>
+            </tbody>
+        </table>
+
+
+
+
+    </div>
+    <!--<ng-view></ng-view>-->
     <div class="col-md-3 col-md-offset-9">
         <div uib-alert ng-repeat="alert in alerts"
              ng-class="'alert-' + (alert.type || 'warning')" close="closeAlert($index)">{{alert.msg}}>
@@ -78,25 +90,6 @@
 <script src="bower_components/ngtweet/dist/ngtweet.js"></script>
 <script src="bower_components/angular-ui-notification/dist/angular-ui-notification.min.js"></script>
 
-<!-- Twitter oEmbed Widget -->
-<script>
-    window.twttr = (function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0],
-                t = window.twttr || {};
-        if (d.getElementById(id)) return t;
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "https://platform.twitter.com/widgets.js";
-        fjs.parentNode.insertBefore(js, fjs);
-
-        t._e = [];
-        t.ready = function(f) {
-            t._e.push(f);
-        };
-
-        return t;
-    }(document, "script", "twitter-wjs"));
-</script>
 
 <script src="app.js"></script>
 

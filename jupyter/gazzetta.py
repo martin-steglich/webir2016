@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from scrapy.spider import Spider
+from scrapy.spider import BaseSpider
 from scrapy.selector import HtmlXPathSelector
-from tutorial.items import TutorialItem
 from scrapy import Selector
 import re
 from pymongo import MongoClient
@@ -10,7 +9,7 @@ import os
 from unidecode import unidecode
 
 
-class GazzettaSpider(Spider):
+class GazzettaSpider(BaseSpider):
 	teamsList = ['Atalanta', 'Bologna', 'Cagliari', 'Chievo', 'Crotone', 'Empoli', 'Fiorentina', 'Genoa', 'Inter',
 	'Juventus', 'Lazio', 'Milan', 'Napoli', 'Palermo', 'Pescara', 'Roma', 'Sampdoria', 'Sassuolo', 'Torino', 'Udinese']
 	teams_dict = {'juventus fc': 109,'as roma': 100,'ac milan': 98,'torino fc': 586,'ssc napoli': 113,'ss lazio': 110,
@@ -34,7 +33,7 @@ class GazzettaSpider(Spider):
 			item['image'] = article.css('[class=u024-article-image-column]').css('[class=image-container]').css('a').css('[class=embed-container]').css('img::attr(src)').extract()[0]
 			item['url'] = 	article.css('[class=u024-article-image-column]').css('[class=image-container]').css('a::attr(href)').extract()[0]
 			item['title'] = article.css('[class=titoli]').css('header')[0].css('[class=title]').css('a::text').extract()[0]
-			item['team'] = self.teams_dict[team]
+			item['team'] = teams_dict[team]
 			item['source'] = 'Gazzetta'
 			items.append(item)
 		self.database_connection().insert_many(items)

@@ -10,101 +10,46 @@ angular.module('krypton', [
         'ui-notification',
         'ngtweet'
 ])
-    //.constant('baseDataUrl', "http://localhost:8890/classify/api/")
-    //.constant('baseDataUrl', "http://192.168.99.100:8890/classify/api/")
-    .constant('baseDataUrl', "https://krypton.mgcoders.uy/classify/api/")
+    //.constant('baseDataUrl', "http://localhost:8890/webir2016/api/")
+    .constant('baseDataUrl', "http://192.168.99.100:8890/webir2016/api/")
 
 
 
-    .factory('TweetFactory', function ($resource, baseDataUrl) {
-        return $resource(baseDataUrl + 'tweet/unclassified/');
+    .factory('LeagueFactory', function ($resource, baseDataUrl) {
+        return $resource(baseDataUrl + 'leagues/');
     })
 
-    .factory('InfoFactory', function ($resource, baseDataUrl) {
-        return $resource(baseDataUrl + 'info/');
+    .factory('TeamFactory', function ($resource, baseDataUrl) {
+        return $resource(baseDataUrl + 'teaminfo/');
     })
 
-    .factory('CassifyFactory', function ($resource, baseDataUrl) {
-        return $resource(baseDataUrl + 'tweet/classify', {}, {
-            save: {
-                method: 'POST',
-                cache: false,
-                isArray: false,
-                headers: {'Content-Type': 'application/json; charset=UTF-8'}
-            }
-        })
+    .factory('MatchdayFactory', function ($resource, baseDataUrl) {
+        return $resource(baseDataUrl + 'leaguematchday');
     })
 
-    .controller('AppCtrl', ['$scope', 'TweetFactory', 'ngProgressFactory', 'CassifyFactory', '$route', '$location', 'Notification', 'InfoFactory', '$timeout', function ($scope, TweetFactory, ngProgressFactory, CassifyFactory, $route, $location, Notification, InfoFactory, $timeout) {
+    .factory('NewsFactory', function ($resource, baseDataUrl) {
+        return $resource(baseDataUrl + 'teamnews');
+    })
+
+    .controller('AppCtrl', ['$scope', 'LeagueFactory', 'TeamFactory', 'MatchdayFactory', 'NewsFactory', 'ngProgressFactory', '$route', '$location', 'Notification', 'InfoFactory', '$timeout', function ($scope, LeagueFactory, TeamFactory, MatchdayFactory, NewsFactory, ngProgressFactory, $route, $location, Notification, InfoFactory, $timeout) {
 
         $scope.progressbar = ngProgressFactory.createInstance();
 
-        $scope.clases = ['NO_CLASIFICADO', 'NO_UTIL', 'POCO_UTIL', 'UTIL', 'MUY_UTIL'];
-
-        $scope.tweetid = undefined;
-
-        $scope.cargarTweet = function () {
-            $scope.tweetid = undefined;
-            TweetFactory.get({}).$promise.then(function (data) {
-                $scope.tweet = data;
-                if ($scope.tweet.error) {
+        $scope.getLeagues = function() {
+            LeagueFactory.get({}).$promise.then(function (data) {
+                $scope.leagues = data['leagues'];
+                if ($scope.leagues.error) {
                     $scope.progressbar.complete();
                     $scope.loading = false;
                 } else {
-                    $scope.tweetid = data.origin_id;
-                    $scope.loadWidget();
+                    alert(leagues.size());
                     $scope.progressbar.complete();
                     $scope.loading = false;
                     $scope.success = true;
                 }
             });
-
         };
 
-        $scope.loadWidget = function () {
-                $timeout(function() {
-                    if(angular.element(document.querySelector('post_' + $scope.tweetid)).find('iframe').length === 0) {
-                        twttr.widgets.createTweet($scope.tweetid, document.getElementById('post_' + $scope.tweetid)).then(function(resp) {
-                            $timeout(function() {
-                                $scope.loading = false;
-                            })
-                        });
-                    };
-                }, 100);
-        };
-
-        $scope.eraseWidget = function(){
-            document.getElementById('post_' + $scope.tweetid).innerHTML = '<div  id="{{\'post_\' + tweetid}}"></div>';
-        }
-
-        $scope.selectClassification = function (classification) {
-            $scope.eraseWidget();
-            $scope.tweet.krypton_category = classification;
-            $scope.enviarTodo();
-        }
-
-        $scope.noClasificar = function () {
-            $scope.eraseWidget();
-            $scope.cargaInicio();
-            $scope.cargarTweet();
-            $scope.cargarInfo();
-        };
-
-
-        $scope.reloadRoute = function () {
-            $location.path("/tweets");
-        };
-
-        $scope.enviarTodo = function () {
-            CassifyFactory.save($scope.tweet).$promise.then(function (data) {
-                console.info('Clasificado', data);
-                Notification({message:'Clasificado, gracias!', positionY: 'bottom', positionX: 'right'});
-                $scope.eraseWidget();
-                $scope.cargaInicio();
-                $scope.cargarTweet();
-                $scope.cargarInfo();
-            });
-        };
 
         $scope.cargaInicio = function () {
             $scope.progressbar.start();
@@ -116,16 +61,9 @@ angular.module('krypton', [
             $scope.paresResto = {};
         };
 
-        $scope.cargarInfo = function () {
-            InfoFactory.get({}).$promise.then(function (data) {
-                $scope.info = data;
-            });
-        }
-
         //Showtime
         $scope.cargaInicio();
-        $scope.cargarTweet();
-        $scope.cargarInfo();
+        $scope.getLeagues();
 
     }])
 
@@ -186,41 +124,38 @@ angular.module('krypton', [
 
     }])
 
-    .config(['$locationProvider', '$routeProvider', '$httpProvider','$authProvider','baseDataUrl', function ($locationProvider, $routeProvider, $httpProvider, $authProvider, baseDataUrl) {
-        $locationProvider.hashPrefix('!');
-        $httpProvider.defaults.useXDomain = true;
-        $httpProvider.defaults.withCredentials = false;
-        delete $httpProvider.defaults.headers.common["X-Requested-With"];
-        $httpProvider.defaults.headers.common["Accept"] = "application/json";
-        $httpProvider.defaults.headers.common["Content-Type"] = "application/json";
-
-        $authProvider.loginUrl = baseDataUrl + 'login';
-        $authProvider.tokenName = 'token';
-        $authProvider.tokenPrefix = 'satellizerKrypton';
-        $authProvider.signupUrl = baseDataUrl + 'signup';
-
-
-        $routeProvider.when('/tweets', {
-            templateUrl: 'partials/tweets.html',
-            controller: 'AppCtrl'
-        });
-
-        $routeProvider.when('/login', {
-            templateUrl: 'partials/login.html',
-            controller: 'LoginCtrl'
-        });
-
-        $routeProvider.when('/signup', {
-            templateUrl: 'partials/signup.html',
-            controller: 'SignupCtrl'
-        });
-
-
-
-        $routeProvider.otherwise({redirectTo: '/login'});
-
-        $locationProvider.html5Mode(true);
-    }]);
+    // .config(['$locationProvider', '$routeProvider', '$httpProvider','$authProvider','baseDataUrl', function ($locationProvider, $routeProvider, $httpProvider, $authProvider, baseDataUrl) {
+    //     $locationProvider.hashPrefix('!');
+    //     $httpProvider.defaults.useXDomain = true;
+    //     $httpProvider.defaults.withCredentials = false;
+    //     delete $httpProvider.defaults.headers.common["X-Requested-With"];
+    //     $httpProvider.defaults.headers.common["Accept"] = "application/json";
+    //     $httpProvider.defaults.headers.common["Content-Type"] = "application/json";
+    //
+    //     $authProvider.loginUrl = baseDataUrl + 'login';
+    //     $authProvider.tokenName = 'token';
+    //     $authProvider.tokenPrefix = 'satellizerKrypton';
+    //     $authProvider.signupUrl = baseDataUrl + 'signup';
+    //
+    //
+    //     $routeProvider.when('/tweets', {
+    //         templateUrl: 'partials/tweets.html',
+    //         controller: 'AppCtrl'
+    //     });
+    //
+    //     $routeProvider.when('/login', {
+    //         templateUrl: 'partials/login.html',
+    //         controller: 'LoginCtrl'
+    //     });
+    //
+    //     $routeProvider.when('/signup', {
+    //         templateUrl: 'partials/signup.html',
+    //         controller: 'SignupCtrl'
+    //     });
+    //
+    //
+    //     $locationProvider.html5Mode(true);
+    // }]);
 
 
 

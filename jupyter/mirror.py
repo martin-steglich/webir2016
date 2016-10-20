@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from scrapy.spider import Spider
+from scrapy.spider import BaseSpider
 from scrapy.selector import HtmlXPathSelector
-from tutorial.items import TutorialItem
 from scrapy import Selector
 import re
 from pymongo import MongoClient
@@ -10,13 +9,12 @@ import os
 from unidecode import unidecode
 
 
-class MirrorSpider(Spider):
+class MirrorSpider(BaseSpider):
 	teamsList = ['arsenal-fc', 'afc-bournemouth', 'burnley-fc', 'chelsea-fc', 'crystal-palace-fc', 'everton-fc', 'hull-city-fc'
 	'leicester-city-fc', 'liverpool-fc', 'manchester-city-fc', 'manchester-united-fc', 'middlesbrough-fc', 'southampton-fc'
 	'stoke-city-fc', 'sunderland-afc', 'swansea-city-fc', 'tottenham-hotspur-fc', 'watford-fc', 'west-bromwich-albion-fc'
 	'west-ham-united-fc']
-	
-	teams_dict = {'manchester city fc': 65,'arsenal fc': 57,'totthenham hotspur fc': 73,'liverpool fc': 64,'chelsea fc': 61,'everton fc': 62,
+	team_dict = {'manchester city fc': 65,'arsenal fc': 57,'totthenham hotspur fc': 73,'liverpool fc': 64,'chelsea fc': 61,'everton fc': 62,
 	'manchester united fc': 66,'southampton fc': 340,'crystal palace fc': 354,'watford fc': 46,'afc bournemouth': 1044,'west bromwich albion fc': 74,
 	'leicester city fc': 338,'burnley fc': 328,'west ham united fc': 563,'hull city fc': 322,'middlesbrough fc': 343,'stoke city fc': 70,'swansea city fc': 72,'sunderland afc': 71}
 
@@ -55,7 +53,7 @@ class MirrorSpider(Spider):
 				item['title'] = article.css('h2').css('a::text').extract()[0].replace('\n','')
 				item['url'] = article.css('h2').css('a::attr(href)').extract()[0]
 				item['image'] = article.css('figure').css('a').css('img::attr(src)').extract()[0]
-				item['team'] = self.teams_dict[team]
+				item['team'] = teams_dict[team]
 				item['source'] = 'Mirror'
 				items.append(item)
 

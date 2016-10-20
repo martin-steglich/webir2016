@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from scrapy.spider import Spider
+from scrapy.spider import BaseSpider
 from scrapy.selector import HtmlXPathSelector
+from tutorial.items import TutorialItem
 from scrapy import Selector
 import re
 from pymongo import MongoClient
@@ -13,23 +14,15 @@ from unidecode import unidecode
 
 
 
-class MarcaSpider(Spider):
+class MarcaSpider(BaseSpider):
 
     teamsList = ['alaves', 'athletic', 'atletico', 'betis', 'celta', 'deportivo', 'eibar', 
         'barcelona', 'granada','leganes', 'malaga', 'osasuna', 'real-madrid', 'espanyol', 'real-sociedad', 
         'sevilla', 'sporting', 'las-palmas', 'valencia', 'villarreal']
 
-    teams_dict = {'atletico': 78,'real madrid': 86,'sevilla': 559,'barcelona': 81,'villareal': 94,'athletic': 77,
-    'las palmas': 275,'eibar': 278,'alaves': 263,'real sociedad': 92,'leganes': 745,'celta vigo': 558,'malaga': 84,
-    'valencia': 95,'deportivo': 560,'betis': 90,'espanyol': 80,'gijon': 96,'osasuna': 79,'granada': 83}
-
-
-
-
     name = "marca"
     allowed_domains = ["marca.com"]
     start_urls = ["http://www.marca.com/futbol/primera-division.html"] + ['http://www.marca.com/futbol/'+ team +'.html' for team in teamsList]
-
 
 
     def parse(self, response):
@@ -45,7 +38,7 @@ class MarcaSpider(Spider):
                 image = news.css('[class=multimedia-item]').css('img::attr(src)').extract()[0]
                 for t in teams:
                     item = {}
-                    item['team'] = self.teams_dict[t]
+                    item['team'] = t
                     item['title'] = title
                     item['url'] = url
                     item['image'] = image
