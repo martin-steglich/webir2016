@@ -17,8 +17,6 @@
     "html5-boilerplate": "^5.3.0",
     "ngprogress": null,
     "angular-ui-bootstrap-bower":null,
-    "satellizer": null,
-    "ngtweet": null,
-    "angular-ui-notification": null
+    "ngTable": null
   }
 }

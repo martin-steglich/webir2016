@@ -1,19 +1,9 @@
 'use strict';
 
 // Declare app level module which depends on views, and components
-angular.module('krypton', [
-        'satellizer',
-        'ngResource',
-        'ngRoute',
-        'ngProgress',
-        'ui.bootstrap',
-        'ui-notification',
-        'ngtweet'
-])
-    //.constant('baseDataUrl', "http://localhost:8890/webir2016/api/")
-    .constant('baseDataUrl', "http://192.168.99.100:8890/webir2016/api/")
-
-
+angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap'])
+    // //.constant('baseDataUrl', "http://localhost:8890/webir2016/api/")
+     .constant('baseDataUrl', "http://192.168.99.100:8890/webir2016/api/")
 
     .factory('LeagueFactory', function ($resource, baseDataUrl) {
         return $resource(baseDataUrl + 'leagues/');
@@ -31,43 +21,69 @@ angular.module('krypton', [
         return $resource(baseDataUrl + 'teamnews');
     })
 
-    .controller('AppCtrl', ['$scope', 'LeagueFactory', 'TeamFactory', 'MatchdayFactory', 'NewsFactory', 'ngProgressFactory', '$route', '$location', 'Notification', 'InfoFactory', '$timeout', function ($scope, LeagueFactory, TeamFactory, MatchdayFactory, NewsFactory, ngProgressFactory, $route, $location, Notification, InfoFactory, $timeout) {
+    .controller('AppCtrl', ['$scope', 'LeagueFactory', 'ngProgressFactory','$timeout',  function ($scope, LeagueFactory, ngProgressFactory, timeout) {
 
         $scope.progressbar = ngProgressFactory.createInstance();
+        // $scope.leagues = [
+        //     {
+        //         Driver: {
+        //             givenName: 'Sebastian',
+        //             familyName: 'Vettel'
+        //         },
+        //         points: 322,
+        //         nationality: "German",
+        //         Constructors: [
+        //             {name: "Red Bull"}
+        //         ]
+        //     },
+        //     {
+        //         Driver: {
+        //             givenName: 'Fernando',
+        //             familyName: 'Alonso'
+        //         },
+        //         points: 207,
+        //         nationality: "Spanish",
+        //         Constructors: [
+        //             {name: "Ferrari"}
+        //         ]
+        //     }
+        // ];
 
         $scope.getLeagues = function() {
+            //console.log("GETLEAGUES");
             LeagueFactory.get({}).$promise.then(function (data) {
-                $scope.leagues = data['leagues'];
-                if ($scope.leagues.error) {
+                $scope.leagues_response = data;
+                if ($scope.leagues_response.error) {
+                    console.log("ERROR");
+                    console.log($scope.leagues_response.error);
                     $scope.progressbar.complete();
                     $scope.loading = false;
                 } else {
-                    alert(leagues.size());
+                    //console.log($scope.leagues_response);
                     $scope.progressbar.complete();
                     $scope.loading = false;
                     $scope.success = true;
+                    $scope.leagues = $scope.leagues_response['leagues']
                 }
             });
         };
-
-
-        $scope.cargaInicio = function () {
-            $scope.progressbar.start();
-            $scope.loading = true;
-            $scope.success = false;
-            $scope.isCollapsed = false;
-            $scope.othersuccess = false;
-            $scope.pares = {};
-            $scope.paresResto = {};
-        };
-
-        //Showtime
-        $scope.cargaInicio();
+        //
+        //
+        // $scope.cargaInicio = function () {
+        //     console.log("CARGAINICIO");
+        //     $scope.progressbar.start();
+        //     $scope.loading = true;
+        //     $scope.success = false;
+        // };
+        //
+        // //Showtime
+        //$scope.cargaInicio();
+        $scope.progressbar.start();
         $scope.getLeagues();
 
     }])
 
-    .controller('LoginCtrl', ['$scope','$auth','$location','Notification', function($scope, $auth, $location, Notification) {
+    /*.controller('LoginCtrl', ['$scope','$auth','$location','Notification', function($scope, $auth, $location, Notification) {
 
         $scope.email = null;
         $scope.password = null;
@@ -122,7 +138,7 @@ angular.module('krypton', [
         }
 
 
-    }])
+    }])*/
 
     // .config(['$locationProvider', '$routeProvider', '$httpProvider','$authProvider','baseDataUrl', function ($locationProvider, $routeProvider, $httpProvider, $authProvider, baseDataUrl) {
     //     $locationProvider.hashPrefix('!');

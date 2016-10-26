@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!--[if lt IE 7]>
-<html lang="en" ng-app='krypton' class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<html lang="en" ng-app='App' class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>
-<html lang="en" ng-app='krypton' class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<html lang="en" ng-app='App' class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>
-<html lang="en" ng-app='krypton' class="no-js lt-ie9"> <![endif]-->
+<html lang="en" ng-app='App' class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!-->
-<html lang="en" ng-app='krypton' class="no-js"> <!--<![endif]-->
+<html lang="en" ng-app='App' class="no-js"> <!--<![endif]-->
 <head>
     <meta charset="utf-8">
     <base href="/">
@@ -33,50 +33,60 @@
 
 
 </head>
-<body>
 
-<div ng-app="App" ng-controller='AppCtrl' ng-cloak class="container-fluid">
-
-    <div class="page-header">
-        <h1>Webir
-            <small>2016</small>
-        </h1>
-
-    </div>
-
-    <div class="col-md-6 col-md-offset-3 btn-group" ng-show="success">
-
-
-        <table>
-            <tbody ng-repeat="i in leagues">
-            <tr><td>{{i.leagueCaption}}</td><td>{{$index}}</td></tr>
-            </tbody>
-        </table>
-
-
-
-
-    </div>
-    <!--<ng-view></ng-view>-->
-    <div class="col-md-3 col-md-offset-9">
-        <div uib-alert ng-repeat="alert in alerts"
-             ng-class="'alert-' + (alert.type || 'warning')" close="closeAlert($index)">{{alert.msg}}>
-        </div>
-    </div>
-
+<body ng-app="App" ng-controller="AppCtrl">
+<div class="col-md-6 col-md-offset-3">
+    <table class="table" ng-repeat="league in leagues">
+    <thead>
+    <tr><th colspan="4">{{league.leagueCaption}}</th></tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>#</td>
+        <td>
+            Equipo
+        </td>
+        <td>
+            Jugados
+        </td>
+        <td>
+            Goles a favor
+        </td>
+        <td>
+            Goles en contra
+        </td>
+        <td>
+            Diferencia de goles
+        </td>
+        <td>
+            Puntos
+        </td>
+    </tr>
+    <tr ng-repeat="team in league.standing" border="1">
+        <td>{{$index + 1}}</td>
+        <td>
+            <img ng-src="{{team.crestURI}}" style="width:20px;height:20px;"/>
+            {{team.team}}
+        </td>
+        <td>
+            {{team.playedGames}}
+        </td>
+        <td>
+            {{team.goals}}
+        </td>
+        <td>
+            {{team.goalsAgainst}}
+        </td>
+        <td>
+            {{team.goalDifference}}
+        </td>
+        <td>
+            {{team.points}}
+        </td>
+    </tr>
+    </tbody>
+</table>
 </div>
-
-
-<!--dismiss-on-timeout="3000"
-<script src="bower_components/angular/angular.js"></script>
-<script src="bower_components/angular-animate/angular-animate.min.js"></script>
-<script src="bower_components/angular-aria/angular-aria.min.js"></script>
-<script src="bower_components/angular-route/angular-route.js"></script>
-<script src="bower_components/angular-resource/angular-resource.js"></script>
-<script src="bower_components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js"></script>
--->
-
-
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-route.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-animate.min.js"></script>
