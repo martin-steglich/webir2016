@@ -1,7 +1,7 @@
 'use strict';
 
 // Declare app level module which depends on views, and components
-angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap'])
+angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ngRoute'])
     // //.constant('baseDataUrl', "http://localhost:8890/webir2016/api/")
      .constant('baseDataUrl', "http://192.168.99.100:8890/webir2016/api/")
 
@@ -14,40 +14,16 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap'])
     })
 
     .factory('MatchdayFactory', function ($resource, baseDataUrl) {
-        return $resource(baseDataUrl + 'leaguematchday');
+        return $resource(baseDataUrl + 'leaguematchday', {});
     })
 
     .factory('NewsFactory', function ($resource, baseDataUrl) {
         return $resource(baseDataUrl + 'teamnews');
     })
 
-    .controller('AppCtrl', ['$scope', 'LeagueFactory', 'ngProgressFactory','$timeout',  function ($scope, LeagueFactory, ngProgressFactory, timeout) {
+    .controller('AppCtrl', ['$scope', 'LeagueFactory', 'MatchdayFactory', 'ngProgressFactory','$timeout',  function ($scope, LeagueFactory, MatchdayFactory, ngProgressFactory, timeout) {
 
         $scope.progressbar = ngProgressFactory.createInstance();
-        // $scope.leagues = [
-        //     {
-        //         Driver: {
-        //             givenName: 'Sebastian',
-        //             familyName: 'Vettel'
-        //         },
-        //         points: 322,
-        //         nationality: "German",
-        //         Constructors: [
-        //             {name: "Red Bull"}
-        //         ]
-        //     },
-        //     {
-        //         Driver: {
-        //             givenName: 'Fernando',
-        //             familyName: 'Alonso'
-        //         },
-        //         points: 207,
-        //         nationality: "Spanish",
-        //         Constructors: [
-        //             {name: "Ferrari"}
-        //         ]
-        //     }
-        // ];
 
         $scope.getLeagues = function() {
             //console.log("GETLEAGUES");
@@ -63,10 +39,14 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap'])
                     $scope.progressbar.complete();
                     $scope.loading = false;
                     $scope.success = true;
-                    $scope.leagues = $scope.leagues_response['leagues']
+                    $scope.leagues = $scope.leagues_response['leagues'];
                 }
             });
         };
+
+
+
+
         //
         //
         // $scope.cargaInicio = function () {
@@ -82,6 +62,59 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap'])
         $scope.getLeagues();
 
     }])
+
+    .controller('MatchdayCtrl', ['$scope', 'MatchdayFactory', 'ngProgressFactory', '$timeout','$routeParams', function($scope, MatchdayFactory, ngProgressFactory, timeout, $routeParams){
+        $scope.progressbar = ngProgressFactory.createInstance();
+
+        $scope.league = $routeParams.league;
+        $scope.matchday = $routeParams.matchday;
+
+        $scope.getMatchday = function() {
+            //console.log("GETLEAGUES");
+            MatchdayFactory.get({league:$scope.league,matchday:$scope.matchday}).$promise.then(function (data) {
+                $scope.matchday_response = data;
+                if ($scope.matchday_response.error) {
+                    console.log("ERROR");
+                    console.log($scope.matchday_response.error);
+                    $scope.progressbar.complete();
+                    $scope.loading = false;
+                } else {
+                    //console.log($scope.leagues_response);
+                    $scope.progressbar.complete();
+                    $scope.loading = false;
+                    $scope.success = true;
+                    console.log($scope.matchday_response['matchday']);
+                    console.log($scope.matchday_response['league_name']);
+                    $scope.matchday_num = $scope.matchday_response['matchday'];
+                    $scope.matchday = $scope.matchday_response['fixtures'];
+                    $scope.league_name = $scope.matchday_response['league_name'];
+                    $scope.league_id = $scope.matchday_response['league_id'];
+                    $scope.next_matchday = parseInt($scope.matchday_num) + 1;
+                    $scope.prev_matchday = parseInt($scope.matchday_num) - 1;
+                }
+            });
+        };
+
+
+
+        //
+        //
+        // $scope.cargaInicio = function () {
+        //     console.log("CARGAINICIO");
+        //     $scope.progressbar.start();
+        //     $scope.loading = true;
+        //     $scope.success = false;
+        // };
+        //
+        // //Showtime
+        //$scope.cargaInicio();
+        $scope.progressbar.start();
+        $scope.getMatchday();
+
+
+    }])
+
+
 
     /*.controller('LoginCtrl', ['$scope','$auth','$location','Notification', function($scope, $auth, $location, Notification) {
 
@@ -130,7 +163,7 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap'])
                 });
         }
     }])
-
+    */
     .controller('IndexCtrl', ['$rootScope','$location', function($rootScope, $location) {
 
         $rootScope.changeView = function(view) {
@@ -138,40 +171,24 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap'])
         }
 
 
-    }])*/
+    }])
 
-    // .config(['$locationProvider', '$routeProvider', '$httpProvider','$authProvider','baseDataUrl', function ($locationProvider, $routeProvider, $httpProvider, $authProvider, baseDataUrl) {
-    //     $locationProvider.hashPrefix('!');
-    //     $httpProvider.defaults.useXDomain = true;
-    //     $httpProvider.defaults.withCredentials = false;
-    //     delete $httpProvider.defaults.headers.common["X-Requested-With"];
-    //     $httpProvider.defaults.headers.common["Accept"] = "application/json";
-    //     $httpProvider.defaults.headers.common["Content-Type"] = "application/json";
-    //
-    //     $authProvider.loginUrl = baseDataUrl + 'login';
-    //     $authProvider.tokenName = 'token';
-    //     $authProvider.tokenPrefix = 'satellizerKrypton';
-    //     $authProvider.signupUrl = baseDataUrl + 'signup';
-    //
-    //
-    //     $routeProvider.when('/tweets', {
-    //         templateUrl: 'partials/tweets.html',
-    //         controller: 'AppCtrl'
-    //     });
-    //
-    //     $routeProvider.when('/login', {
-    //         templateUrl: 'partials/login.html',
-    //         controller: 'LoginCtrl'
-    //     });
-    //
-    //     $routeProvider.when('/signup', {
-    //         templateUrl: 'partials/signup.html',
-    //         controller: 'SignupCtrl'
-    //     });
-    //
-    //
-    //     $locationProvider.html5Mode(true);
-    // }]);
+
+
+    .config(['$locationProvider', '$routeProvider','baseDataUrl', function ($locationProvider, $routeProvider, baseDataUrl) {
+
+        $routeProvider.when("/", {
+            templateUrl: "partials/leagues.html",
+            controller: "AppCtrl"
+        });
+
+        $routeProvider.when("/matchday/:league/:matchday", {
+            templateUrl: "partials/league.html",
+            controller: "MatchdayCtrl"
+        });
+
+        $locationProvider.html5Mode(true);
+    }]);
 
 
 

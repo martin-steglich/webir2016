@@ -1,0 +1,32 @@
+<div class="col-md-6 col-md-offset-3">
+    <table class="table">
+        <thead>
+        <tr><th colspan="4">
+            <a href="matchday/{{league_id}}/{{prev_matchday}}">
+                <
+            </a>
+            {{league_name}} - Fecha {{matchday_num}}
+            <a href="matchday/{{league_id}}/{{next_matchday}}">
+                >
+            </a>
+        </th></tr>
+        </thead>
+        <tbody>
+        <tr >
+            <td>
+                Local
+            </td>
+            <td>
+            </td>
+            <td>
+                Visitante
+            </td>
+        </tr>
+        <tr  ng-repeat="match in matchday track by $index">
+            <td>{{match.homeTeamName}}</td>
+            <td> {{match.result.goalsHomeTeam}} - {{match.result.goalsAwayTeam}}</td>
+            <td>{{match.awayTeamName}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>

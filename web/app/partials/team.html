@@ -1,0 +1,56 @@
+<div class="col-md-6 col-md-offset-3">
+    <table class="table" ng-repeat="league in leagues">
+        <thead>
+        <tr><th colspan="4">
+            <a href="matchday/{{league.league_id}}/{{league.matchday}}">
+                {{league.leagueCaption}}
+            </a>
+        </th></tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>#</td>
+            <td>
+                Eq.
+            </td>
+            <td>
+                PJ
+            </td>
+            <td>
+                GF
+            </td>
+            <td>
+                GC
+            </td>
+            <td>
+                DG
+            </td>
+            <td>
+                Ptos
+            </td>
+        </tr>
+        <tr ng-repeat="team in league.standing" border="1">
+            <td>{{$index + 1}}</td>
+            <td>
+                <img ng-src="{{team.crestURI}}" style="width:20px;height:20px;"/>
+                {{team.team}}
+            </td>
+            <td>
+                {{team.playedGames}}
+            </td>
+            <td>
+                {{team.goals}}
+            </td>
+            <td>
+                {{team.goalsAgainst}}
+            </td>
+            <td>
+                {{team.goalDifference}}
+            </td>
+            <td>
+                {{team.points}}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

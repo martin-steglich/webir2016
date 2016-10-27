@@ -44,7 +44,7 @@ news_data = db['news-data']
 
 
 #leagues = {426: 'Premier League (Inglaterra)', 430: 'Bundesliga (Alemania)', 433: 'Eredivisie (Holanda)', 434: 'Ligue 1 (Francia)', 436: 'LaLiga Santander (España)', 438: 'Serie A (Italia)', 439: 'Primeira Liga (Portugal)', 440: 'Champions League'}
-leagues = {426: 'Premier League (Inglaterra)', 436: 'LaLiga Santander (España)', 438: 'Serie A (Italia)'}
+leagues = {436: 'Primera Division 2016/17', 438: 'Serie A 2016/17', 426: 'Premier League 2016/17' }
 
 
 def hash_password(password):
@@ -114,7 +114,7 @@ def get_leagues_info():
             leagues_list.append(response)
 
         leagues_response['leagues'] = leagues_list
-        #print leagues_response['leagues']
+        print leagues_response['leagues']
         return jsonify(**leagues_response)
     except Exception, e:
         return jsonify(error=str(e))
@@ -129,6 +129,7 @@ def get_league_matchday():
         response = json.loads(connection.getresponse().read().decode('utf-8'))
         response['league_id'] = league_id
         response['matchday'] = matchday
+        response['league_name'] = leagues[int(league_id)]
         return jsonify(**response)
     except Exception, e:
         return jsonify(error='Error', exception=str(e))
