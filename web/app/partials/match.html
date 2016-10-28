@@ -1,0 +1,23 @@
+<div class="page-header">
+    <h1><img ng-src="{{team_logo}}" style="width:60px;height:60px;"/>
+        {{team_name}}
+    </h1>
+
+</div>
+<div class="row">
+    <div class="col-md-4 col-md-offset-3">
+        <div style="height: 50px">
+            <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
+                <div uib-slide ng-repeat="news in team_news" index="news.index">
+                    <a href="{{news.url}}">
+                        <img class="offer-detail-image" ng-src="{{news.image}}" style="max-height:300px; margin:0 auto;">
+                        <div class="carousel-caption">
+                            <h4>{{news.title}}</h4>
+                            <p>{{news.source}}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

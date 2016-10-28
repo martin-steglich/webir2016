@@ -23,3 +23,15 @@
   width: 16.66666667%;
   padding: 0!important;
 }
+
+.offer-detail-image {
+   display: block;
+   overflow: visible;
+   width: 100%;
+   height: auto;
+   margin-right: auto;
+   margin-bottom: 12px;
+   margin-left: auto;
+   float: none;
+}
+

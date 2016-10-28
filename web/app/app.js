@@ -10,7 +10,7 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
     })
 
     .factory('TeamFactory', function ($resource, baseDataUrl) {
-        return $resource(baseDataUrl + 'teaminfo/');
+        return $resource(baseDataUrl + 'teaminfo', {});
     })
 
     .factory('MatchdayFactory', function ($resource, baseDataUrl) {
@@ -18,7 +18,7 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
     })
 
     .factory('NewsFactory', function ($resource, baseDataUrl) {
-        return $resource(baseDataUrl + 'teamnews');
+        return $resource(baseDataUrl + 'teamnews', {});
     })
 
     .controller('AppCtrl', ['$scope', 'LeagueFactory', 'MatchdayFactory', 'ngProgressFactory','$timeout',  function ($scope, LeagueFactory, MatchdayFactory, ngProgressFactory, timeout) {
@@ -88,9 +88,12 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
                     $scope.matchday_num = $scope.matchday_response['matchday'];
                     $scope.matchday = $scope.matchday_response['fixtures'];
                     $scope.league_name = $scope.matchday_response['league_name'];
+                    $scope.league_logo = $scope.matchday_response['league_logo'];
                     $scope.league_id = $scope.matchday_response['league_id'];
                     $scope.next_matchday = parseInt($scope.matchday_num) + 1;
                     $scope.prev_matchday = parseInt($scope.matchday_num) - 1;
+
+
                 }
             });
         };
@@ -110,6 +113,103 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
         //$scope.cargaInicio();
         $scope.progressbar.start();
         $scope.getMatchday();
+
+
+    }])
+
+    .controller('TeamCtrl', ['$scope', 'TeamFactory','NewsFactory', 'ngProgressFactory', '$timeout','$routeParams', function($scope, TeamFactory, NewsFactory, ngProgressFactory, timeout, $routeParams){
+        $scope.progressbar = ngProgressFactory.createInstance();
+
+        $scope.team = $routeParams.team;
+
+        $scope.getTeamInfo = function() {
+            //console.log("GETLEAGUES");
+            $scope.sortType = 'player.jerseyNumber';
+            TeamFactory.get({team:$scope.team}).$promise.then(function (data) {
+                $scope.team_response = data;
+                if ($scope.team_response.error) {
+                    console.log("ERROR");
+                    console.log($scope.team_response.error);
+                    $scope.progressbar.complete();
+                    $scope.loading = false;
+                } else {
+                    //console.log($scope.leagues_response);
+                    $scope.progressbar.complete();
+                    $scope.loading = false;
+                    $scope.success = true;
+                    // console.log($scope.matchday_response['matchday']);
+                    // console.log($scope.matchday_response['league_name']);
+                    $scope.team_name = $scope.team_response['name'];
+                    $scope.team_logo = $scope.team_response['logo'];
+                    $scope.team_fixtures = $scope.team_response['team_fixtures'];
+                    $scope.team_players = $scope.team_response['team_players'];
+                    $scope.team_squad_market_value = $scope.team_response['squadMarketValue'];
+
+                    $scope.currentPageFixture = 1;
+                    $scope.totalItemsFixture = $scope.team_fixtures['count'];
+                    $scope.numPerPageFixture = 5;
+                    $scope.currentPagePlayers = 1;
+                    $scope.totalItemsPlayers = $scope.team_players['count'];
+                    $scope.numPerPagePlayers = 5;
+                    $scope.paginateFixture = function (value) {
+                        var begin, end, index;
+                        begin = ($scope.currentPageFixture - 1) * $scope.numPerPageFixture;
+                        end = begin + $scope.numPerPageFixture;
+                        index = $scope.team_fixtures['fixtures'].indexOf(value);
+                        return (begin <= index && index < end);
+                    };
+                    $scope.paginatePlayers = function (value) {
+                        var begin, end, index;
+                        begin = ($scope.currentPagePlayers - 1) * $scope.numPerPagePlayers;
+                        end = begin + $scope.numPerPagePlayers;
+                        index = $scope.team_players['players'].indexOf(value);
+                        return (begin <= index && index < end);
+                    };
+                }
+            });
+        };
+
+        $scope.getTeamNews = function() {
+            $scope.myInterval = 5000;
+            $scope.noWrapSlides = false;
+            $scope.active = 0;
+            var slides = $scope.slides = [];
+            var currIndex = 0;
+            //console.log("GETLEAGUES");
+            NewsFactory.get({team:$scope.team}).$promise.then(function (data) {
+                $scope.news_response = data;
+                if ($scope.news_response.error) {
+                    console.log("ERROR");
+                    console.log($scope.team_response.error);
+                    $scope.progressbar.complete();
+                    $scope.loading = false;
+                } else {
+                    //console.log($scope.leagues_response);
+                    $scope.progressbar.complete();
+                    $scope.loading = false;
+                    $scope.success = true;
+                    // console.log($scope.matchday_response['matchday']);
+                    // console.log($scope.matchday_response['league_name']);
+                    $scope.team_news = $scope.news_response['team_news'];
+                }
+            });
+        };
+
+
+        //
+        //
+        // $scope.cargaInicio = function () {
+        //     console.log("CARGAINICIO");
+        //     $scope.progressbar.start();
+        //     $scope.loading = true;
+        //     $scope.success = false;
+        // };
+        //
+        // //Showtime
+        //$scope.cargaInicio();
+        $scope.progressbar.start();
+        $scope.getTeamInfo();
+        $scope.getTeamNews();
 
 
     }])
@@ -185,6 +285,11 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
         $routeProvider.when("/matchday/:league/:matchday", {
             templateUrl: "partials/league.html",
             controller: "MatchdayCtrl"
+        });
+
+        $routeProvider.when("/team/:team", {
+            templateUrl: "partials/team.html",
+            controller: "TeamCtrl"
         });
 
         $locationProvider.html5Mode(true);

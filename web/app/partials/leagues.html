@@ -3,6 +3,7 @@
         <thead>
         <tr><th colspan="4">
             <a href="matchday/{{league.league_id}}/{{league.matchday}}">
+                <img ng-src="{{league.league_logo}}" style="width:20px;height:20px;"/>
                 {{league.leagueCaption}}
             </a>
         </th></tr>
@@ -32,8 +33,10 @@
         <tr ng-repeat="team in league.standing" border="1">
             <td>{{$index + 1}}</td>
             <td>
+                <a href="team/{{team.teamId}}">
                 <img ng-src="{{team.crestURI}}" style="width:20px;height:20px;"/>
-                {{team.team}}
+                    {{team.team}}
+                </a>
             </td>
             <td>
                 {{team.playedGames}}

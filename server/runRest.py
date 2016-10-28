@@ -44,7 +44,9 @@ news_data = db['news-data']
 
 
 #leagues = {426: 'Premier League (Inglaterra)', 430: 'Bundesliga (Alemania)', 433: 'Eredivisie (Holanda)', 434: 'Ligue 1 (Francia)', 436: 'LaLiga Santander (España)', 438: 'Serie A (Italia)', 439: 'Primeira Liga (Portugal)', 440: 'Champions League'}
-leagues = {436: 'Primera Division 2016/17', 438: 'Serie A 2016/17', 426: 'Premier League 2016/17' }
+leagues = {436: {'name' :'Primera Division 2016/17', 'logo':'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQydRXL7i4m2yO-6ysRDGVwBrMk80o4UiBe7SjlcIeKPoI7ldacxg'}, 
+438: {'name': 'Serie A 2016/17', 'logo': 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSrJppTvzFKBrv8nys8XNQTxwR3kotjSV5HYZmIZYkKpZyRPnlQ4g'}
+, 426: {'name' : 'Premier League 2016/17', 'logo': 'http://sportsopendata.net/wp-content/uploads/2016/08/Premier_League_Logo_2016-1.png' }}
 
 
 def hash_password(password):
@@ -111,13 +113,15 @@ def get_leagues_info():
             connection.request('GET', url, None, headers )
             response = json.loads(connection.getresponse().read().decode('utf-8'))
             response['league_id'] = league
+            response['league_logo'] = leagues[int(league)]['logo']
             leagues_list.append(response)
 
         leagues_response['leagues'] = leagues_list
-        print leagues_response['leagues']
+        #print leagues_response['leagues']
         return jsonify(**leagues_response)
     except Exception, e:
-        return jsonify(error=str(e))
+        print "AAAAAA"
+        return jsonify(error='Error', exception=str(e))
 
 @app.route('/webir2016/api/leaguematchday', methods = ['GET'])
 def get_league_matchday():
@@ -129,7 +133,8 @@ def get_league_matchday():
         response = json.loads(connection.getresponse().read().decode('utf-8'))
         response['league_id'] = league_id
         response['matchday'] = matchday
-        response['league_name'] = leagues[int(league_id)]
+        response['league_name'] = leagues[int(league_id)]['name']
+        response['league_logo'] = leagues[int(league_id)]['logo']
         return jsonify(**response)
     except Exception, e:
         return jsonify(error='Error', exception=str(e))
@@ -156,7 +161,8 @@ def get_team_info():
         players_info = json.loads(connection.getresponse().read().decode('utf-8'))
         ret_info['team_players'] = {}
         ret_info['team_players']['count'] = players_info['count']
-        ret_info['team_players']['players'] = players_info['players']
+        newlist = sorted(players_info['players'], key=lambda k: k['jerseyNumber']) 
+        ret_info['team_players']['players'] = newlist
         
         #Obtengo los partidos del cuadro
         url = 'http://api.football-data.org/v1/teams/' + str(team_id) + '/fixtures'
@@ -174,20 +180,23 @@ def get_team_info():
 
 @app.route('/webir2016/api/teamnews', methods = ['GET'])
 def get_team_news():
-	try:
-		team_id = int(request.args.get('team', None))
+    try:   
+        idx = 0
+        team_id = int(request.args.get('team', None))
 
-		news_list = list(news_data.find({'team' : team_id}))
-		for data in news_list:
-			data[u'_id']=str(data[u'_id'])
+        news_list = list(news_data.find({'team' : team_id}))
+        for data in news_list:
+            data[u'_id']=str(data[u'_id'])
+            data[u'index'] = idx
+            idx += 1
 
-		news = {}
-		news['team'] = team_id
-		news['count'] = len(news_list)
-		news['team_news'] = news_list
-		return jsonify(**news)
-	except Exception, e:
-		return jsonify(err0r = 'Error', exception=str(e))
+        news = {}
+        news['team'] = team_id
+        news['count'] = len(news_list[:10])
+        news['team_news'] = news_list[:10]
+        return jsonify(**news)
+    except Exception, e:
+        return jsonify(err0r = 'Error', exception=str(e))
 
 
 @app.route('/classify/api/login', methods=['POST'])

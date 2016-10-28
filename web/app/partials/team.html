@@ -1,56 +1,90 @@
-<div class="col-md-6 col-md-offset-3">
-    <table class="table" ng-repeat="league in leagues">
-        <thead>
-        <tr><th colspan="4">
-            <a href="matchday/{{league.league_id}}/{{league.matchday}}">
-                {{league.leagueCaption}}
-            </a>
-        </th></tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>#</td>
-            <td>
-                Eq.
-            </td>
-            <td>
-                PJ
-            </td>
-            <td>
-                GF
-            </td>
-            <td>
-                GC
-            </td>
-            <td>
-                DG
-            </td>
-            <td>
-                Ptos
-            </td>
-        </tr>
-        <tr ng-repeat="team in league.standing" border="1">
-            <td>{{$index + 1}}</td>
-            <td>
-                <img ng-src="{{team.crestURI}}" style="width:20px;height:20px;"/>
-                {{team.team}}
-            </td>
-            <td>
-                {{team.playedGames}}
-            </td>
-            <td>
-                {{team.goals}}
-            </td>
-            <td>
-                {{team.goalsAgainst}}
-            </td>
-            <td>
-                {{team.goalDifference}}
-            </td>
-            <td>
-                {{team.points}}
-            </td>
-        </tr>
-        </tbody>
-    </table>
+<a href="/">
+    Volver al Inicio
+</a>
+<div class="page-header">
+    <h1><img ng-src="{{team_logo}}" style="width:60px;height:60px;"/>
+        {{team_name}}
+    </h1>
+
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <table class="table table-bordered table-striped">
+            <thead>
+            <tr><th colspan="3">
+                Jugadores: {{team_players.count}} - Valor: {{team_squad_market_value}} en total
+            </th></tr>
+            </thead>
+            <tbody>
+            <tr >
+                <td>
+                    #
+                </td>
+                <td>
+                    Nombre
+                </td>
+                <td>
+                    Posición
+                </td>
+            </tr>
+            <tr  ng-repeat="player in team_players.players | filter:paginatePlayers">
+                <td>{{player.jerseyNumber}}</td>
+                <td> {{player.name}}</td>
+                <td> {{player.position}}</td>
+            </tr>
+            </tbody>
+        </table>
+        <ul uib-pagination total-items="totalItemsPlayers" ng-model="currentPagePlayers" boundary-links="true"></ul>
+    </div>
+    <div class="col-md-2"></div>
+    <div class="col-md-6">
+        <div class="container-fluid">
+        <table class="table table-bordered table-striped">
+            <thead>
+            <tr><th colspan="4">
+                Partidos
+            </th></tr>
+            </thead>
+            <tbody>
+            <tr >
+                <td>
+                    Fecha
+                </td>
+                <td>
+                    Local
+                </td>
+                <td>
+                </td>
+                <td>
+                    Visitante
+                </td>
+            </tr>
+            <tr  ng-repeat="match in team_fixtures.fixtures | filter:paginateFixture">
+                <td>{{match.matchday}}</td>
+                <td>{{match.homeTeamName}}</td>
+                <td> {{match.result.goalsHomeTeam}} - {{match.result.goalsAwayTeam}}</td>
+                <td>{{match.awayTeamName}}</td>
+            </tr>
+            </tbody>
+        </table>
+            <ul uib-pagination total-items="totalItemsFixture" ng-model="currentPageFixture" boundary-links="true"></ul>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4 col-md-offset-3">
+    <div style="height: 50px">
+        <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
+            <div uib-slide ng-repeat="news in team_news" index="news.index">
+                <a href="{{news.url}}">
+                    <img class="offer-detail-image" ng-src="{{news.image}}" style="max-height:300px; margin:0 auto;">
+                    <div class="carousel-caption">
+                        <h4>{{news.title}}</h4>
+                        <p>Fuente: {{news.source}}</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    </div>
 </div>
