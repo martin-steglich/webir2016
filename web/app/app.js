@@ -21,6 +21,10 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
         return $resource(baseDataUrl + 'teamnews', {});
     })
 
+    .factory('MatchNewsFactory', function ($resource, baseDataUrl) {
+        return $resource(baseDataUrl + 'matchnews', {});
+    })
+
     .controller('AppCtrl', ['$scope', 'LeagueFactory', 'MatchdayFactory', 'ngProgressFactory','$timeout',  function ($scope, LeagueFactory, MatchdayFactory, ngProgressFactory, timeout) {
 
         $scope.progressbar = ngProgressFactory.createInstance();
@@ -47,18 +51,17 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
 
 
 
-        //
-        //
-        // $scope.cargaInicio = function () {
-        //     console.log("CARGAINICIO");
-        //     $scope.progressbar.start();
-        //     $scope.loading = true;
-        //     $scope.success = false;
-        // };
-        //
-        // //Showtime
-        //$scope.cargaInicio();
-        $scope.progressbar.start();
+
+
+        $scope.cargaInicio = function () {
+            console.log("CARGAINICIO");
+            $scope.progressbar.start();
+            $scope.loading = true;
+            $scope.success = false;
+        };
+
+        //Showtime
+        $scope.cargaInicio();
         $scope.getLeagues();
 
     }])
@@ -100,18 +103,15 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
 
 
 
-        //
-        //
-        // $scope.cargaInicio = function () {
-        //     console.log("CARGAINICIO");
-        //     $scope.progressbar.start();
-        //     $scope.loading = true;
-        //     $scope.success = false;
-        // };
-        //
-        // //Showtime
-        //$scope.cargaInicio();
-        $scope.progressbar.start();
+        $scope.cargaInicio = function () {
+            console.log("CARGAINICIO");
+            $scope.progressbar.start();
+            $scope.loading = true;
+            $scope.success = false;
+        };
+
+        //Showtime
+        $scope.cargaInicio();
         $scope.getMatchday();
 
 
@@ -196,20 +196,76 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
         };
 
 
-        //
-        //
-        // $scope.cargaInicio = function () {
-        //     console.log("CARGAINICIO");
-        //     $scope.progressbar.start();
-        //     $scope.loading = true;
-        //     $scope.success = false;
-        // };
-        //
-        // //Showtime
-        //$scope.cargaInicio();
-        $scope.progressbar.start();
+        $scope.cargaInicio = function () {
+            console.log("CARGAINICIO");
+            $scope.progressbar.start();
+            $scope.loading = true;
+            $scope.success = false;
+        };
+
+        //Showtime
+        $scope.cargaInicio();
         $scope.getTeamInfo();
         $scope.getTeamNews();
+
+
+    }])
+
+    .controller('MatchNewsCtrl', ['$scope', 'MatchNewsFactory', 'ngProgressFactory', '$timeout','$routeParams', function($scope, MatchNewsFactory, ngProgressFactory, timeout, $routeParams){
+        $scope.progressbar = ngProgressFactory.createInstance();
+
+        $scope.team1 = $routeParams.team1;
+        $scope.team2 = $routeParams.team2;
+
+        $scope.getMatchNews = function(){
+            $scope.myInterval1 = 5000;
+            $scope.noWrapSlides1 = false;
+            $scope.active1 = 0;
+            $scope.myInterval2 = 5000;
+            $scope.noWrapSlides2 = false;
+            $scope.active2 = 0;
+            MatchNewsFactory.get({team1:$scope.team1, team2:$scope.team2}).$promise.then(function (data) {
+                $scope.matchnews_response = data;
+                if($scope.matchnews_response.error){
+                    console.log("ERROR");
+                    console.log($scope.matchnews_response.error);
+                    $scope.progressbar.complete();
+                    $scope.loading = false;
+                } else {
+                    $scope.progressbar.complete();
+                    $scope.loading = false;
+                    $scope.success = true;
+                    $scope.match = $scope.matchnews_response['match'];
+
+                    $scope.title = $scope.match['homeTeamName'];
+                    if ($scope.match['result']['goalsHomeTeam'] != null && $scope.match['result']['goalsHomeTeam'] != "null")
+                        $scope.title += " " + $scope.match['result']['goalsHomeTeam'];
+
+                    $scope.title += " - " ;
+
+                    if($scope.match['result']['goalsAwayTeam'] != null && $scope.match['result']['goalsAwayTeam'] != "null")
+                        $scope.title += $scope.match['result']['goalsAwayTeam'] + " ";
+
+                    $scope.title += $scope.match['awayTeamName'];
+
+                    $scope.team1 = $scope.matchnews_response['team1'];
+                    $scope.team2 = $scope.matchnews_response['team2'];
+                    $scope.matches = $scope.matchnews_response['matches'];
+
+                }
+            })
+        }
+
+        $scope.cargaInicio = function () {
+            console.log("CARGAINICIO");
+            $scope.progressbar.start();
+            $scope.loading = true;
+            $scope.success = false;
+        };
+
+        //Showtime
+        $scope.cargaInicio();
+        $scope.getMatchNews();
 
 
     }])
@@ -290,6 +346,11 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
         $routeProvider.when("/team/:team", {
             templateUrl: "partials/team.html",
             controller: "TeamCtrl"
+        });
+
+        $routeProvider.when("/match/:team1/:team2", {
+            templateUrl: "partials/match.html",
+            controller: "MatchNewsCtrl"
         });
 
         $locationProvider.html5Mode(true);

@@ -60,7 +60,7 @@
                 </td>
             </tr>
             <tr  ng-repeat="match in team_fixtures.fixtures | filter:paginateFixture">
-                <td>{{match.matchday}}</td>
+                <td><p ng-bind="match.date | date:'dd/MM/yyyy'"></p></td>
                 <td>{{match.homeTeamName}}</td>
                 <td> {{match.result.goalsHomeTeam}} - {{match.result.goalsAwayTeam}}</td>
                 <td>{{match.awayTeamName}}</td>

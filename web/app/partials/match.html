@@ -1,23 +1,81 @@
-<div class="page-header">
-    <h1><img ng-src="{{team_logo}}" style="width:60px;height:60px;"/>
-        {{team_name}}
-    </h1>
+<a href="/">
+    Volver al Inicio
+</a>
+<div ng-show="success">
+    <div class="page-header">
+        <h1>
+            <img ng-src="{{team1.team_logo}}" style="width:60px;height:60px;"/>
+            {{title}}
+            <img ng-src="{{team2.team_logo}}" style="width:60px;height:60px;"/>
+        </h1>
 
-</div>
-<div class="row">
-    <div class="col-md-4 col-md-offset-3">
+    </div>
+
+    <div class="col-md-3">
+        Noticias {{team1.team_name}}
         <div style="height: 50px">
-            <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
-                <div uib-slide ng-repeat="news in team_news" index="news.index">
-                    <a href="{{news.url}}">
-                        <img class="offer-detail-image" ng-src="{{news.image}}" style="max-height:300px; margin:0 auto;">
+            <div uib-carousel active="active1" interval="myInterval1" no-wrap="noWrapSlides1">
+                <div uib-slide ng-repeat="news1 in team1.team_news" index="news1.index">
+                    <a href="{{news1.url}}">
+                        <img class="offer-detail-image" ng-src="{{news1.image}}" style="max-height:300px; margin:0 auto;">
                         <div class="carousel-caption">
-                            <h4>{{news.title}}</h4>
-                            <p>{{news.source}}</p>
+                            <h4>{{news1.title}}</h4>
+                            <p>Fuente: {{news1.source}}</p>
                         </div>
                     </a>
                 </div>
             </div>
         </div>
     </div>
+    <div class="col-md-6">
+        <div class="container-fluid">
+            <table class="table table-bordered table-striped">
+                <thead>
+                <tr><th colspan="4">
+                    Partidos entre {{team1.team_name}} y {{team2.team_name}}
+                </th></tr>
+                </thead>
+                <tbody>
+                <tr >
+                    <td>
+                        Fecha
+                    </td>
+                    <td>
+                        Local
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                        Visitante
+                    </td>
+                </tr>
+                <tr  ng-repeat="match in matches">
+                    <td><p ng-bind="match.date | date:'dd/MM/yyyy'"></p></td>
+                    <td>{{match.homeTeamName}}</td>
+                    <td> {{match.result.goalsHomeTeam}} - {{match.result.goalsAwayTeam}}</td>
+                    <td>{{match.awayTeamName}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-3">
+        Noticias {{team2.team_name}}
+        <div style="height: 50px">
+            <div uib-carousel active="active2" interval="myInterval2" no-wrap="noWrapSlides2">
+                <div uib-slide ng-repeat="news2 in team2.team_news" index="news2.index">
+                    <a href="{{news2.url}}">
+                        <img class="offer-detail-image" ng-src="{{news2.image}}" style="max-height:300px; margin:0 auto;">
+                        <div class="carousel-caption">
+                            <h4>{{news2.title}}</h4>
+                            <p>Fuente: {{news2.source}}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-6 col-md-offset-3 col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1" ng-show="!success && !loading">
+    <strong>:( Tuvimos un problema... </strong>Por favor haga click en Volver al Inicio
 </div>

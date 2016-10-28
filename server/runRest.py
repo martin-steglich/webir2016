@@ -45,8 +45,8 @@ news_data = db['news-data']
 
 #leagues = {426: 'Premier League (Inglaterra)', 430: 'Bundesliga (Alemania)', 433: 'Eredivisie (Holanda)', 434: 'Ligue 1 (Francia)', 436: 'LaLiga Santander (España)', 438: 'Serie A (Italia)', 439: 'Primeira Liga (Portugal)', 440: 'Champions League'}
 leagues = {436: {'name' :'Primera Division 2016/17', 'logo':'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQydRXL7i4m2yO-6ysRDGVwBrMk80o4UiBe7SjlcIeKPoI7ldacxg'}, 
-438: {'name': 'Serie A 2016/17', 'logo': 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSrJppTvzFKBrv8nys8XNQTxwR3kotjSV5HYZmIZYkKpZyRPnlQ4g'}
-, 426: {'name' : 'Premier League 2016/17', 'logo': 'http://sportsopendata.net/wp-content/uploads/2016/08/Premier_League_Logo_2016-1.png' }}
+438: {'name': 'Serie A 2016/17', 'logo': 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSrJppTvzFKBrv8nys8XNQTxwR3kotjSV5HYZmIZYkKpZyRPnlQ4g'}}
+#, 426: {'name' : 'Premier League 2016/17', 'logo': 'http://sportsopendata.net/wp-content/uploads/2016/08/Premier_League_Logo_2016-1.png' }}
 
 
 def hash_password(password):
@@ -198,6 +198,53 @@ def get_team_news():
     except Exception, e:
         return jsonify(err0r = 'Error', exception=str(e))
 
+@app.route('/webir2016/api/matchnews', methods = ['GET'])
+def get_match_news():
+    try:
+        news_ret = {}
+        for i in [1,2]:
+            idx = 0
+            team_id = int(request.args.get('team' + str(i), None))
+
+            news_list = list(news_data.find({'team' : team_id}))
+            for data in news_list:
+                data[u'_id']=str(data[u'_id'])
+                data[u'index'] = idx
+                idx += 1
+
+            news = {}
+            news['team'] = team_id
+            news['count'] = len(news_list[:10])
+            news['team_news'] = news_list[:10]
+
+
+            url = 'http://api.football-data.org/v1/teams/' + str(team_id)
+            connection.request('GET', url, None, headers )
+            team_info = json.loads(connection.getresponse().read().decode('utf-8'))
+            news['team_name'] = team_info['name']
+            news['team_logo'] = team_info['crestUrl']
+            news_ret['team' + str(i)] = news
+
+
+
+        url = 'http://api.football-data.org/v1/teams/' + str(news_ret['team1']['team']) + '/fixtures'
+        connection.request('GET', url, None, headers)
+        fixtures = json.loads(connection.getresponse().read().decode('utf-8'))['fixtures']
+        matches = []
+        for match in fixtures:
+            if match['homeTeamName'] == news_ret['team2']['team_name'] or match['awayTeamName'] == news_ret['team2']['team_name']:
+                if match['awayTeamName'] == news_ret['team2']['team_name']:
+                    news_ret['match'] = match
+                matches.append(match)
+                continue
+
+        news_ret['matches'] = matches
+
+
+        return jsonify(**news_ret)
+    except Exception, e:
+        return jsonify(err0r = 'Error', exception=str(e))
+
 
 @app.route('/classify/api/login', methods=['POST'])
 def login():
@@ -211,5 +258,5 @@ def login():
 
 
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0',port=6666,threaded=True)
+    app.run(debug=False,host='0.0.0.0',port=6666,threaded=True)
     
