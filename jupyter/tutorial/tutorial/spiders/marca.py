@@ -23,8 +23,11 @@ class MarcaSpider(Spider):
     teams_dict = {'atletico de madrid': 78,'real madrid': 86,'sevilla': 559,'barcelona': 81,'villarreal': 94,'athletic': 77,
     'las palmas': 275,'eibar': 278,'alaves': 263,'real sociedad': 92,'leganes': 745,'celta': 558,'malaga': 84,
     'valencia': 95,'deportivo': 560,'betis': 90,'espanyol': 80,'sporting de gijon': 96,'osasuna': 79,'granada': 83}
- 
 
+    teams_name = {'atletico de madrid': 'Atlético de Madrid','real madrid': 'Real Madrid','sevilla': 'Sevilla','barcelona': 'Barcelona','villarreal': 'Villarreal','athletic': 'Athletic de Bilbao',
+    'las palmas': 'Las Palmas','eibar': 'Eibar','alaves': 'Alavés','real sociedad': 'Real Sociedad','leganes': 'Leganés','celta': 'Celta de Vigo','malaga': 'Málaga',
+    'valencia': 'Valencia','deportivo': 'Deportivo','betis': 'Real Betis','espanyol': 'Espanyol','sporting de gijon': 'Sporting de Gijón','osasuna': 'Osasuna','granada': 'Granada'}
+ 
 
 
     name = "marca"
@@ -46,10 +49,12 @@ class MarcaSpider(Spider):
             image = news.css('[class=multimedia-item]').css('img::attr(src)').extract()[0]
             item = {}
             item['team'] = self.teams_dict[team]
+            item['team_name'] = self.teams_name[team]
             item['title'] = title
             item['url'] = url
             item['image'] = image
             item['source'] = 'Marca'
+            item['league_id'] = 436
             items.append(item)
         
         self.database_connection().insert_many(items)

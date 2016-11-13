@@ -1,0 +1,44 @@
+<style>
+    .typeahead-demo .custom-popup-wrapper {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        display: none;
+        background-color: #f9f9f9;
+    }
+
+    .typeahead-demo .custom-popup-wrapper > .message {
+        padding: 10px 20px;
+        border-bottom: 1px solid #ddd;
+        color: #868686;
+    }
+
+    .typeahead-demo .custom-popup-wrapper > .dropdown-menu {
+        position: absolute;
+        float: none;
+        display: block;
+        min-width: 160px;
+        background-color: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+</style>
+
+<script type="text/ng-template" id="customTemplate.html">
+    <a>
+        <img ng-src="{{match.model.team_logo}}" width="16">
+        <span ng-bind-html="match.label | uibTypeaheadHighlight:query"></span> | {{match.model.type}}
+    </a>
+</script>
+
+
+<input type="text" ng-model="customSelected"
+       placeholder="Buscar un equipo"
+       uib-typeahead="team as team.team_name for team in teams | filter:{team_name:$viewValue}"
+       typeahead-template-url="customTemplate.html"
+       class="form-control"
+       focus-me="closed"
+       typeahead-show-hint="true" typeahead-min-length="0"
+       typeahead-on-select="redirectTeam($item)">

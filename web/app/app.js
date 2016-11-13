@@ -1,12 +1,13 @@
 'use strict';
 
 // Declare app level module which depends on views, and components
-angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ngRoute'])
+angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ngRoute', 'ngAnimate', 'ngSanitize'])
     // //.constant('baseDataUrl', "http://localhost:8890/webir2016/api/")
-     .constant('baseDataUrl', "http://192.168.99.100:8890/webir2016/api/")
 
-    .factory('LeagueFactory', function ($resource, baseDataUrl) {
-        return $resource(baseDataUrl + 'leagues/');
+    .constant('baseDataUrl', "http://192.168.99.100:8890/webir2016/api/")
+
+    .factory('SearchFactory', function ($resource, baseDataUrl) {
+        return $resource(baseDataUrl + 'search/');
     })
 
     .factory('TeamFactory', function ($resource, baseDataUrl) {
@@ -25,17 +26,28 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
         return $resource(baseDataUrl + 'matchnews', {});
     })
 
-    .controller('AppCtrl', ['$scope', 'LeagueFactory', 'MatchdayFactory', 'ngProgressFactory','$timeout',  function ($scope, LeagueFactory, MatchdayFactory, ngProgressFactory, timeout) {
+    .factory('LeagueNewsFactory', function($resource, baseDataUrl) {
+        return $resource(baseDataUrl + 'leaguenews', {});
+    })
+
+    .factory('TeamsFactory', function($resource, baseDataUrl) {
+        return $resource(baseDataUrl + 'teams/');
+    })
+
+    .factory('LeagueFactory', function($resource, baseDataUrl) {
+        return $resource(baseDataUrl + 'league/', {});
+    })
+
+    .controller('AppCtrl', ['$scope', 'SearchFactory', 'MatchdayFactory', 'LeagueNewsFactory' ,'TeamsFactory','ngProgressFactory','$http', '$location','$timeout',  function ($scope, SearchFactory, MatchdayFactory, LeagueNewsFactory, TeamsFactory, ngProgressFactory, $http, $location, timeout) {
 
         $scope.progressbar = ngProgressFactory.createInstance();
 
-        $scope.getLeagues = function() {
-            //console.log("GETLEAGUES");
-            LeagueFactory.get({}).$promise.then(function (data) {
-                $scope.leagues_response = data;
-                if ($scope.leagues_response.error) {
+        $scope.getSearchLists = function() {
+            SearchFactory.get({}).$promise.then(function (data) {
+                $scope.teams_response = data;
+                if ($scope.teams_response.error) {
                     console.log("ERROR");
-                    console.log($scope.leagues_response.error);
+                    console.log($scope.teams_response.error);
                     $scope.progressbar.complete();
                     $scope.loading = false;
                 } else {
@@ -43,13 +55,43 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
                     $scope.progressbar.complete();
                     $scope.loading = false;
                     $scope.success = true;
-                    $scope.leagues = $scope.leagues_response['leagues'];
+                    $scope.items = $scope.teams_response['search'];
+
                 }
             });
         };
 
+        var _selected;
+
+        $scope.selected = undefined;
+
+        $scope.ngModelOptionsSelected = function(value) {
+            if (arguments.length) {
+                _selected = value;
+            } else {
+                return _selected;
+            }
+        };
+
+        $scope.modelOptions = {
+            debounce: {
+                default: 500,
+                blur: 250
+            },
+            getterSetter: true
+        };
 
 
+        //$scope.statesWithFlags = [{'name':'Alabama','flag':'5/5c/Flag_of_Alabama.svg/45px-Flag_of_Alabama.svg.png'},{'name':'Alaska','flag':'e/e6/Flag_of_Alaska.svg/43px-Flag_of_Alaska.svg.png'},{'name':'Arizona','flag':'9/9d/Flag_of_Arizona.svg/45px-Flag_of_Arizona.svg.png'},{'name':'Arkansas','flag':'9/9d/Flag_of_Arkansas.svg/45px-Flag_of_Arkansas.svg.png'},{'name':'California','flag':'0/01/Flag_of_California.svg/45px-Flag_of_California.svg.png'},{'name':'Colorado','flag':'4/46/Flag_of_Colorado.svg/45px-Flag_of_Colorado.svg.png'},{'name':'Connecticut','flag':'9/96/Flag_of_Connecticut.svg/39px-Flag_of_Connecticut.svg.png'},{'name':'Delaware','flag':'c/c6/Flag_of_Delaware.svg/45px-Flag_of_Delaware.svg.png'},{'name':'Florida','flag':'f/f7/Flag_of_Florida.svg/45px-Flag_of_Florida.svg.png'},{'name':'Georgia','flag':'5/54/Flag_of_Georgia_%28U.S._state%29.svg/46px-Flag_of_Georgia_%28U.S._state%29.svg.png'},{'name':'Hawaii','flag':'e/ef/Flag_of_Hawaii.svg/46px-Flag_of_Hawaii.svg.png'},{'name':'Idaho','flag':'a/a4/Flag_of_Idaho.svg/38px-Flag_of_Idaho.svg.png'},{'name':'Illinois','flag':'0/01/Flag_of_Illinois.svg/46px-Flag_of_Illinois.svg.png'},{'name':'Indiana','flag':'a/ac/Flag_of_Indiana.svg/45px-Flag_of_Indiana.svg.png'},{'name':'Iowa','flag':'a/aa/Flag_of_Iowa.svg/44px-Flag_of_Iowa.svg.png'},{'name':'Kansas','flag':'d/da/Flag_of_Kansas.svg/46px-Flag_of_Kansas.svg.png'},{'name':'Kentucky','flag':'8/8d/Flag_of_Kentucky.svg/46px-Flag_of_Kentucky.svg.png'},{'name':'Louisiana','flag':'e/e0/Flag_of_Louisiana.svg/46px-Flag_of_Louisiana.svg.png'},{'name':'Maine','flag':'3/35/Flag_of_Maine.svg/45px-Flag_of_Maine.svg.png'},{'name':'Maryland','flag':'a/a0/Flag_of_Maryland.svg/45px-Flag_of_Maryland.svg.png'},{'name':'Massachusetts','flag':'f/f2/Flag_of_Massachusetts.svg/46px-Flag_of_Massachusetts.svg.png'},{'name':'Michigan','flag':'b/b5/Flag_of_Michigan.svg/45px-Flag_of_Michigan.svg.png'},{'name':'Minnesota','flag':'b/b9/Flag_of_Minnesota.svg/46px-Flag_of_Minnesota.svg.png'},{'name':'Mississippi','flag':'4/42/Flag_of_Mississippi.svg/45px-Flag_of_Mississippi.svg.png'},{'name':'Missouri','flag':'5/5a/Flag_of_Missouri.svg/46px-Flag_of_Missouri.svg.png'},{'name':'Montana','flag':'c/cb/Flag_of_Montana.svg/45px-Flag_of_Montana.svg.png'},{'name':'Nebraska','flag':'4/4d/Flag_of_Nebraska.svg/46px-Flag_of_Nebraska.svg.png'},{'name':'Nevada','flag':'f/f1/Flag_of_Nevada.svg/45px-Flag_of_Nevada.svg.png'},{'name':'New Hampshire','flag':'2/28/Flag_of_New_Hampshire.svg/45px-Flag_of_New_Hampshire.svg.png'},{'name':'New Jersey','flag':'9/92/Flag_of_New_Jersey.svg/45px-Flag_of_New_Jersey.svg.png'},{'name':'New Mexico','flag':'c/c3/Flag_of_New_Mexico.svg/45px-Flag_of_New_Mexico.svg.png'},{'name':'New York','flag':'1/1a/Flag_of_New_York.svg/46px-Flag_of_New_York.svg.png'},{'name':'North Carolina','flag':'b/bb/Flag_of_North_Carolina.svg/45px-Flag_of_North_Carolina.svg.png'},{'name':'North Dakota','flag':'e/ee/Flag_of_North_Dakota.svg/38px-Flag_of_North_Dakota.svg.png'},{'name':'Ohio','flag':'4/4c/Flag_of_Ohio.svg/46px-Flag_of_Ohio.svg.png'},{'name':'Oklahoma','flag':'6/6e/Flag_of_Oklahoma.svg/45px-Flag_of_Oklahoma.svg.png'},{'name':'Oregon','flag':'b/b9/Flag_of_Oregon.svg/46px-Flag_of_Oregon.svg.png'},{'name':'Pennsylvania','flag':'f/f7/Flag_of_Pennsylvania.svg/45px-Flag_of_Pennsylvania.svg.png'},{'name':'Rhode Island','flag':'f/f3/Flag_of_Rhode_Island.svg/32px-Flag_of_Rhode_Island.svg.png'},{'name':'South Carolina','flag':'6/69/Flag_of_South_Carolina.svg/45px-Flag_of_South_Carolina.svg.png'},{'name':'South Dakota','flag':'1/1a/Flag_of_South_Dakota.svg/46px-Flag_of_South_Dakota.svg.png'},{'name':'Tennessee','flag':'9/9e/Flag_of_Tennessee.svg/46px-Flag_of_Tennessee.svg.png'},{'name':'Texas','flag':'f/f7/Flag_of_Texas.svg/45px-Flag_of_Texas.svg.png'},{'name':'Utah','flag':'f/f6/Flag_of_Utah.svg/45px-Flag_of_Utah.svg.png'},{'name':'Vermont','flag':'4/49/Flag_of_Vermont.svg/46px-Flag_of_Vermont.svg.png'},{'name':'Virginia','flag':'4/47/Flag_of_Virginia.svg/44px-Flag_of_Virginia.svg.png'},{'name':'Washington','flag':'5/54/Flag_of_Washington.svg/46px-Flag_of_Washington.svg.png'},{'name':'West Virginia','flag':'2/22/Flag_of_West_Virginia.svg/46px-Flag_of_West_Virginia.svg.png'},{'name':'Wisconsin','flag':'2/22/Flag_of_Wisconsin.svg/45px-Flag_of_Wisconsin.svg.png'},{'name':'Wyoming','flag':'b/bc/Flag_of_Wyoming.svg/43px-Flag_of_Wyoming.svg.png'}];
+
+
+
+        $scope.redirectTeam = function(item) {
+            if(item.type == 'EQUIPO')
+                $location.path('/team/' + item.id);
+            else
+                $location.path('/league/' + item.id + '/' + item.matchday);
+        };
 
 
 
@@ -62,7 +104,8 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
 
         //Showtime
         $scope.cargaInicio();
-        $scope.getLeagues();
+        $scope.getSearchLists();
+        // $scope.getTeams();
 
     }])
 
@@ -147,7 +190,7 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
 
                     $scope.currentPageFixture = 1;
                     $scope.totalItemsFixture = $scope.team_fixtures['count'];
-                    $scope.numPerPageFixture = 5;
+                    $scope.numPerPageFixture = 11;
                     $scope.currentPagePlayers = 1;
                     $scope.totalItemsPlayers = $scope.team_players['count'];
                     $scope.numPerPagePlayers = 5;
@@ -270,56 +313,129 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
 
     }])
 
+    .controller('TypeaheadCtrl', ['$scope', '$http', '$location', 'TeamsFactory', 'ngProgressFactory','$timeout', function($scope, $http, $location, TeamsFactory, ngProgressFactory, timeout) {
+
+        $scope.progressbar = ngProgressFactory.createInstance();
 
 
-    /*.controller('LoginCtrl', ['$scope','$auth','$location','Notification', function($scope, $auth, $location, Notification) {
+        var _selected;
 
-        $scope.email = null;
-        $scope.password = null;
-        $scope.login = function(){
-            $auth.login({
-                email: $scope.email,
-                password: $scope.password
-                })
-                .then(function(){
-                    // Si se ha logueado correctamente, lo tratamos aquí.
-                    // Podemos también redirigirle a una ruta
-                    $location.path("/tweets");
-                })
-                .catch(function(response){
-                    // Si ha habido errores llegamos a esta parte
-                    Notification.error({message: response.data.message, delay: 1000, positionY: 'bottom', positionX: 'right'})
-                });
-        }
+        $scope.selected = undefined;
 
-        $scope.goSignup = function(){
-            $location.path("/signup");
-        }
+        $scope.ngModelOptionsSelected = function(value) {
+            if (arguments.length) {
+                _selected = value;
+            } else {
+                return _selected;
+            }
+        };
+
+        $scope.modelOptions = {
+            debounce: {
+                default: 500,
+                blur: 250
+            },
+            getterSetter: true
+        };
+        $scope.getTeams = function() {
+            //console.log("GETLEAGUES");
+            TeamsFactory.get({}).$promise.then(function (data) {
+                $scope.teams_response = data;
+                if ($scope.teams_response.error) {
+                    console.log("ERROR");
+                    console.log($scope.teams_response.error);
+                    $scope.progressbar.complete();
+                    $scope.loading = false;
+                } else {
+                    //console.log($scope.leagues_response);
+                    $scope.progressbar.complete();
+                    $scope.loading = false;
+                    $scope.success = true;
+                    $scope.teams = $scope.teams_response['teams'];
+
+                }
+            });
+        };
+
+
+        //$scope.statesWithFlags = [{'name':'Alabama','flag':'5/5c/Flag_of_Alabama.svg/45px-Flag_of_Alabama.svg.png'},{'name':'Alaska','flag':'e/e6/Flag_of_Alaska.svg/43px-Flag_of_Alaska.svg.png'},{'name':'Arizona','flag':'9/9d/Flag_of_Arizona.svg/45px-Flag_of_Arizona.svg.png'},{'name':'Arkansas','flag':'9/9d/Flag_of_Arkansas.svg/45px-Flag_of_Arkansas.svg.png'},{'name':'California','flag':'0/01/Flag_of_California.svg/45px-Flag_of_California.svg.png'},{'name':'Colorado','flag':'4/46/Flag_of_Colorado.svg/45px-Flag_of_Colorado.svg.png'},{'name':'Connecticut','flag':'9/96/Flag_of_Connecticut.svg/39px-Flag_of_Connecticut.svg.png'},{'name':'Delaware','flag':'c/c6/Flag_of_Delaware.svg/45px-Flag_of_Delaware.svg.png'},{'name':'Florida','flag':'f/f7/Flag_of_Florida.svg/45px-Flag_of_Florida.svg.png'},{'name':'Georgia','flag':'5/54/Flag_of_Georgia_%28U.S._state%29.svg/46px-Flag_of_Georgia_%28U.S._state%29.svg.png'},{'name':'Hawaii','flag':'e/ef/Flag_of_Hawaii.svg/46px-Flag_of_Hawaii.svg.png'},{'name':'Idaho','flag':'a/a4/Flag_of_Idaho.svg/38px-Flag_of_Idaho.svg.png'},{'name':'Illinois','flag':'0/01/Flag_of_Illinois.svg/46px-Flag_of_Illinois.svg.png'},{'name':'Indiana','flag':'a/ac/Flag_of_Indiana.svg/45px-Flag_of_Indiana.svg.png'},{'name':'Iowa','flag':'a/aa/Flag_of_Iowa.svg/44px-Flag_of_Iowa.svg.png'},{'name':'Kansas','flag':'d/da/Flag_of_Kansas.svg/46px-Flag_of_Kansas.svg.png'},{'name':'Kentucky','flag':'8/8d/Flag_of_Kentucky.svg/46px-Flag_of_Kentucky.svg.png'},{'name':'Louisiana','flag':'e/e0/Flag_of_Louisiana.svg/46px-Flag_of_Louisiana.svg.png'},{'name':'Maine','flag':'3/35/Flag_of_Maine.svg/45px-Flag_of_Maine.svg.png'},{'name':'Maryland','flag':'a/a0/Flag_of_Maryland.svg/45px-Flag_of_Maryland.svg.png'},{'name':'Massachusetts','flag':'f/f2/Flag_of_Massachusetts.svg/46px-Flag_of_Massachusetts.svg.png'},{'name':'Michigan','flag':'b/b5/Flag_of_Michigan.svg/45px-Flag_of_Michigan.svg.png'},{'name':'Minnesota','flag':'b/b9/Flag_of_Minnesota.svg/46px-Flag_of_Minnesota.svg.png'},{'name':'Mississippi','flag':'4/42/Flag_of_Mississippi.svg/45px-Flag_of_Mississippi.svg.png'},{'name':'Missouri','flag':'5/5a/Flag_of_Missouri.svg/46px-Flag_of_Missouri.svg.png'},{'name':'Montana','flag':'c/cb/Flag_of_Montana.svg/45px-Flag_of_Montana.svg.png'},{'name':'Nebraska','flag':'4/4d/Flag_of_Nebraska.svg/46px-Flag_of_Nebraska.svg.png'},{'name':'Nevada','flag':'f/f1/Flag_of_Nevada.svg/45px-Flag_of_Nevada.svg.png'},{'name':'New Hampshire','flag':'2/28/Flag_of_New_Hampshire.svg/45px-Flag_of_New_Hampshire.svg.png'},{'name':'New Jersey','flag':'9/92/Flag_of_New_Jersey.svg/45px-Flag_of_New_Jersey.svg.png'},{'name':'New Mexico','flag':'c/c3/Flag_of_New_Mexico.svg/45px-Flag_of_New_Mexico.svg.png'},{'name':'New York','flag':'1/1a/Flag_of_New_York.svg/46px-Flag_of_New_York.svg.png'},{'name':'North Carolina','flag':'b/bb/Flag_of_North_Carolina.svg/45px-Flag_of_North_Carolina.svg.png'},{'name':'North Dakota','flag':'e/ee/Flag_of_North_Dakota.svg/38px-Flag_of_North_Dakota.svg.png'},{'name':'Ohio','flag':'4/4c/Flag_of_Ohio.svg/46px-Flag_of_Ohio.svg.png'},{'name':'Oklahoma','flag':'6/6e/Flag_of_Oklahoma.svg/45px-Flag_of_Oklahoma.svg.png'},{'name':'Oregon','flag':'b/b9/Flag_of_Oregon.svg/46px-Flag_of_Oregon.svg.png'},{'name':'Pennsylvania','flag':'f/f7/Flag_of_Pennsylvania.svg/45px-Flag_of_Pennsylvania.svg.png'},{'name':'Rhode Island','flag':'f/f3/Flag_of_Rhode_Island.svg/32px-Flag_of_Rhode_Island.svg.png'},{'name':'South Carolina','flag':'6/69/Flag_of_South_Carolina.svg/45px-Flag_of_South_Carolina.svg.png'},{'name':'South Dakota','flag':'1/1a/Flag_of_South_Dakota.svg/46px-Flag_of_South_Dakota.svg.png'},{'name':'Tennessee','flag':'9/9e/Flag_of_Tennessee.svg/46px-Flag_of_Tennessee.svg.png'},{'name':'Texas','flag':'f/f7/Flag_of_Texas.svg/45px-Flag_of_Texas.svg.png'},{'name':'Utah','flag':'f/f6/Flag_of_Utah.svg/45px-Flag_of_Utah.svg.png'},{'name':'Vermont','flag':'4/49/Flag_of_Vermont.svg/46px-Flag_of_Vermont.svg.png'},{'name':'Virginia','flag':'4/47/Flag_of_Virginia.svg/44px-Flag_of_Virginia.svg.png'},{'name':'Washington','flag':'5/54/Flag_of_Washington.svg/46px-Flag_of_Washington.svg.png'},{'name':'West Virginia','flag':'2/22/Flag_of_West_Virginia.svg/46px-Flag_of_West_Virginia.svg.png'},{'name':'Wisconsin','flag':'2/22/Flag_of_Wisconsin.svg/45px-Flag_of_Wisconsin.svg.png'},{'name':'Wyoming','flag':'b/bc/Flag_of_Wyoming.svg/43px-Flag_of_Wyoming.svg.png'}];
+
+
+
+        $scope.redirectTeam = function(team) {
+            $location.path('/team/' + team.team_id);
+        };
+
+        $scope.cargaInicio = function () {
+            console.log("CARGAINICIO");
+            $scope.progressbar.start();
+            $scope.loading = true;
+            $scope.success = false;
+        };
+
+        //Showtime
+        $scope.cargaInicio();
+        $scope.getTeams();
+
     }])
 
-    .controller('SignupCtrl', ['$scope','$auth','$location','Notification', function($scope, $auth, $location, Notification) {
+    .controller('LeagueCtrl', ['$scope', 'LeagueFactory', 'ngProgressFactory', '$timeout','$routeParams', function($scope, LeagueFactory, ngProgressFactory, timeout, $routeParams){
+        $scope.progressbar = ngProgressFactory.createInstance();
 
-        $scope.email = null;
-        $scope.password = null;
-        $scope.pin = null;
-        $scope.signup = function(){
-            $auth.signup({
-                    email: $scope.email,
-                    password: $scope.password,
-                    pin: $scope.pin
-                })
-                .then(function(){
-                    // Si se ha logueado correctamente, lo tratamos aquí.
-                    // Podemos también redirigirle a una ruta
-                    $location.path("/tweets");
-                })
-                .catch(function(response){
-                    // Si ha habido errores llegamos a esta parte
-                    Notification.error({message: response.data.message, delay: 1000, positionY: 'bottom', positionX: 'right'})
-                });
-        }
+        $scope.league = $routeParams.league;
+        $scope.matchday = $routeParams.matchday;
+
+        $scope.getLeague = function() {
+            $scope.myInterval = 5000;
+            $scope.noWrapSlides = false;
+            $scope.active = 0;
+            //console.log("GETLEAGUES");
+            LeagueFactory.get({league:$scope.league,matchday:$scope.matchday}).$promise.then(function (data) {
+                $scope.league_response = data;
+                if ($scope.league_response.error) {
+                    console.log("ERROR");
+                    console.log($scope.league_response.error);
+                    $scope.progressbar.complete();
+                    $scope.loading = false;
+                } else {
+                    //console.log($scope.leagues_response);
+                    $scope.progressbar.complete();
+                    $scope.loading = false;
+                    $scope.success = true;
+                    console.log($scope.league_response['matchday']);
+                    console.log($scope.league_response['league_name']);
+                    $scope.matchday_num = $scope.league_response['matchday'];
+                    $scope.matchday = $scope.league_response['fixtures'];
+                    $scope.league_name = $scope.league_response['league_name'];
+                    $scope.league_logo = $scope.league_response['league_logo'];
+                    $scope.league_id = $scope.league_response['league_id'];
+                    $scope.league_standing = $scope.league_response['league_standing'];
+                    $scope.league_news = $scope.league_response['league_news'];
+                    $scope.next_matchday = parseInt($scope.matchday_num) + 1;
+                    $scope.prev_matchday = parseInt($scope.matchday_num) - 1;
+
+
+                }
+            });
+        };
+
+
+
+        $scope.cargaInicio = function () {
+            console.log("CARGAINICIO");
+            $scope.progressbar.start();
+            $scope.loading = true;
+            $scope.success = false;
+        };
+
+        //Showtime
+        $scope.cargaInicio();
+        $scope.getLeague();
+
+
     }])
-    */
+
+
     .controller('IndexCtrl', ['$rootScope','$location', function($rootScope, $location) {
 
         $rootScope.changeView = function(view) {
@@ -338,9 +454,9 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
             controller: "AppCtrl"
         });
 
-        $routeProvider.when("/matchday/:league/:matchday", {
+        $routeProvider.when("/league/:league/:matchday", {
             templateUrl: "partials/league.html",
-            controller: "MatchdayCtrl"
+            controller: "LeagueCtrl"
         });
 
         $routeProvider.when("/team/:team", {
@@ -351,6 +467,11 @@ angular.module('App', ['ngResource','ngRoute', 'ngProgress', 'ui.bootstrap', 'ng
         $routeProvider.when("/match/:team1/:team2", {
             templateUrl: "partials/match.html",
             controller: "MatchNewsCtrl"
+        });
+
+        $routeProvider.when("/search", {
+            templateUrl: "partials/search.html",
+            controller: "TypeaheadCtrl"
         });
 
         $locationProvider.html5Mode(true);

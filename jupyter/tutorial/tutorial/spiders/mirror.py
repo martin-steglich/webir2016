@@ -34,8 +34,10 @@ class MirrorSpider(Spider):
 		item['image'] = response.css('[class=tmRow\ span-24\ row]').css('[class=tmCol\ span-18\ col-1]').css('[class=tmCol\ span-17-5\ last]').css('[class=teaser\ dh-teaser\ left-headline]').css('figure').css('a').css('img::attr(src)').extract()[0]
 		item['url'] = response.css('[class=tmRow\ span-24\ row]').css('[class=tmCol\ span-18\ col-1]').css('[class=tmCol\ span-17-5\ last]').css('[class=teaser\ dh-teaser\ left-headline]').css('figure').css('a::attr(href)').extract()[0]
 		item['title'] = response.css('[class=tmRow\ span-24\ row]').css('[class=tmCol\ span-18\ col-1]').css('[class=tmCol\ span-17-5\ last]').css('[class=teaser\ dh-teaser\ left-headline]').css('h3').css('a::text').extract()[0]
-		item['team'] = team
+		item['team'] = self.teams_dict[team]
+		item['team_name'] = team
 		item['source'] = 'Mirror'
+		item['league_id'] = 426
 		items.append(item)
 
 		for article in response.css('[class=tmRow\ span-24\ row]').css('[class=tmCol\ span-18\ col-1]').css('[class=tmCol\ span-8-5\ col-1] div').css('div'):
@@ -44,8 +46,10 @@ class MirrorSpider(Spider):
 			item['title'] = article.css('h2').css('a::text').extract()[0].replace('\n','')
 			item['url'] = article.css('h2').css('a::attr(href)').extract()[0]
 			item['image'] = article.css('figure').css('a').css('img::attr(src)').extract()[0]
-			item['team'] = team
+			item['team'] = self.teams_dict[team]
 			item['source'] = 'Mirror'
+			item['league_id'] = 426
+			item['team_name'] = team
 			items.append(item)
 
 		for article in response.css('[class=tmRow\ span-24\ row]').css('[class=tmCol\ span-18\ col-1]').css('[class=tmCol\ span-8-5\ col-2\ last] div').css('div'):
@@ -56,7 +60,9 @@ class MirrorSpider(Spider):
 				item['url'] = article.css('h2').css('a::attr(href)').extract()[0]
 				item['image'] = article.css('figure').css('a').css('img::attr(src)').extract()[0]
 				item['team'] = self.teams_dict[team]
+				item['team_name'] = team
 				item['source'] = 'Mirror'
+				item['league_id'] = 426
 				items.append(item)
 
 		self.database_connection().insert_many(items)

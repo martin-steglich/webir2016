@@ -13,6 +13,7 @@ from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSign
 from functools import wraps
 from pymongo import MongoClient
 import httplib
+from random import randint
 
 auth = HTTPBasicAuth()
 app = Flask(__name__)
@@ -117,8 +118,41 @@ def get_leagues_info():
             leagues_list.append(response)
 
         leagues_response['leagues'] = leagues_list
-        #print leagues_response['leagues']
+        print leagues_response['leagues']
         return jsonify(**leagues_response)
+    except Exception, e:
+        print "AAAAAA"
+        return jsonify(error='Error', exception=str(e))
+
+@app.route('/webir2016/api/search', methods = ['GET'])
+#@login_required
+def get_search_items():
+    try:
+        search_list = []
+        search_response = {}
+        for league in list(leagues.keys()):
+            #league_in_db = league_data.find_one({'league_id' : league})
+            url = 'http://api.football-data.org/v1/competitions/' + str(league) + '/leagueTable'
+            connection.request('GET', url, None, headers )
+            response = json.loads(connection.getresponse().read().decode('utf-8'))
+            l = {}
+            l['name'] = response['leagueCaption']
+            l['id'] = league
+            l['logo'] = leagues[int(league)]['logo']
+            l['matchday'] = response['matchday']
+            l['type'] = 'LIGA'
+            search_list.append(l)
+            for team in response['standing']:
+                t = {}
+                t['name'] = team['team']
+                t['id'] = team['teamId']
+                t['logo'] = team['crestURI']
+                t['type'] = 'EQUIPO'
+                search_list.append(t)
+
+        search_response['search'] = search_list
+        #print leagues_response['leagues']
+        return jsonify(**search_response)
     except Exception, e:
         print "AAAAAA"
         return jsonify(error='Error', exception=str(e))
@@ -135,6 +169,42 @@ def get_league_matchday():
         response['matchday'] = matchday
         response['league_name'] = leagues[int(league_id)]['name']
         response['league_logo'] = leagues[int(league_id)]['logo']
+        return jsonify(**response)
+    except Exception, e:
+        return jsonify(error='Error', exception=str(e))
+
+@app.route('/webir2016/api/league', methods = ['GET'])
+def get_league():
+    try:
+        matchday = request.args.get('matchday',None)
+        league_id = request.args.get('league', None)
+        url = 'http://api.football-data.org/v1/competitions/' + str(league_id) + '/fixtures?matchday=' + str(matchday)
+        connection.request('GET', url, None, headers )
+        response = json.loads(connection.getresponse().read().decode('utf-8'))
+        response['league_id'] = league_id
+        response['matchday'] = matchday
+        response['league_logo'] = leagues[int(league_id)]['logo']
+
+        url = 'http://api.football-data.org/v1/competitions/' + str(league_id) + '/leagueTable'
+        connection.request('GET', url, None, headers )
+        response_league = json.loads(connection.getresponse().read().decode('utf-8'))
+        response['league_standing'] = response_league['standing']
+        response['league_name'] = response_league['leagueCaption']
+
+        news_db = list(news_data.find({'league_id' : int(league_id)}))
+        print len(news_db)
+        news_list = []
+        for i in range(0,9):
+            news_list.append(news_db[randint(0,len(news_db) - 1)])
+
+        idx = 0
+        for data in news_list:
+            data[u'_id'] = str(data[u'_id'])
+            data[u'index'] = idx
+            idx += 1
+
+        response['league_news'] = news_list
+
         return jsonify(**response)
     except Exception, e:
         return jsonify(error='Error', exception=str(e))
@@ -177,6 +247,28 @@ def get_team_info():
     except Exception, e:
         print e
         return jsonify(err0r='Error', exception=str(e))
+
+@app.route('/webir2016/api/leaguenews', methods = ['GET'])
+def get_league_news():
+    try:
+        league_id = request.args.get('league', None)
+        news_db = list(news_data.find({'league_id' : league_id}))
+        news_list = []
+        for i in range(0,9):
+            news_list.append(news_db[randint(0,len(news_db) - 1)])
+
+        idx = 0
+        for data in news_list:
+            data[u'_id'] = str(data[u'_id'])
+            data[u'index'] = idx
+            idx += 1
+
+        news = {}
+        news['league_news'] = news_list
+        news['league_name'] = leagues[int(league_id)]['name']
+        return jsonify(**news)
+    except Exception, e:
+        return jsonify(err0r = 'Error', exception = str(e))
 
 @app.route('/webir2016/api/teamnews', methods = ['GET'])
 def get_team_news():
@@ -258,5 +350,5 @@ def login():
 
 
 if __name__ == '__main__':
-    app.run(debug=False,host='0.0.0.0',port=6666,threaded=True)
+    app.run(debug=True,host='0.0.0.0',port=6666,threaded=True)
     

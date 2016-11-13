@@ -17,6 +17,9 @@ class GazzettaSpider(Spider):
 	'ac chievo': 106,'cagliari': 104,'genoa': 107,'us sassuolo': 471,'inter fc': 108,'bologna fc': 103,'atalanta': 102,
 	'fiorentina': 99,'sampdoria': 584,'pescara': 585,'udinese': 115,'palermo': 114,'empoli': 445,'crotone': 472} 
 
+	teams_name = {'juventus fc': 'Juventus','as roma': 'Roma','ac milan': 'Milan','torino fc': 'Torino','ssc napoli': 'Napoli','ss lazio': 'Lazio',
+	'ac chievo': 'Chievo Verona','cagliari': 'Cagliari','genoa': 'Genoa','us sassuolo': 'Sassuolo','inter fc': 'Inter','bologna fc': 'Bologna','atalanta': 'Atalanta',
+	'fiorentina': 'Fiorentina','sampdoria': 'Sampdoria','pescara': 'Pescara','udinese': 'Udinese','palermo': 'Palermo','empoli': 'Empoli','crotone': 'Crotone'} 
 
 	name = "gazzetta"
 	allowed_domains = ["gazzetta.it"]
@@ -35,7 +38,9 @@ class GazzettaSpider(Spider):
 			item['url'] = 	article.css('[class=u024-article-image-column]').css('[class=image-container]').css('a::attr(href)').extract()[0]
 			item['title'] = article.css('[class=titoli]').css('header')[0].css('[class=title]').css('a::text').extract()[0]
 			item['team'] = self.teams_dict[team]
+			item['team_name'] = self.teams_name[team]
 			item['source'] = 'Gazzetta'
+			item['league_id'] = 438
 			items.append(item)
 		self.database_connection().insert_many(items)
 
