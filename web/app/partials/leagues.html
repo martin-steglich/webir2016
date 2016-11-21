@@ -32,13 +32,19 @@
 
 
 <div ng-show="success">
+    <div class="page-header">
+        <h1>
+            WEBIR 2016 - Grupo 04: <h4>Martín Steglich, Cristian Bauza, Emiliano Vázquez, Matías Landeira</h4>
+        </h1>
+
+    </div>
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
             <div style="width: 100%">
                 <span>{{showLinks}}</span>
 
             <input type="text" ng-model="customSelected"
-                   placeholder="Buscar un equipo"
+                   placeholder="Buscar..."
                    uib-typeahead="search_item as search_item.name for search_item in items | filter:{name:$viewValue}"
                    typeahead-template-url="customTemplate.html"
                    class="form-control"

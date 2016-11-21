@@ -1,3 +1,5 @@
+
+
 <style>
     .typeahead-demo .custom-popup-wrapper {
         position: absolute;
@@ -33,9 +35,14 @@
     </a>
 </script>
 
+<div class="page-header">
+    <h1>
+        WEBIR 2016 - Grupo 04: <h4>Martín Steglich, Cristian Bauza, Emiliano Vázquez, Matías Landeira</h4>
+    </h1>
 
+</div>
 <input type="text" ng-model="customSelected"
-       placeholder="Buscar un equipo"
+       placeholder="Buscar..."
        uib-typeahead="team as team.team_name for team in teams | filter:{team_name:$viewValue}"
        typeahead-template-url="customTemplate.html"
        class="form-control"

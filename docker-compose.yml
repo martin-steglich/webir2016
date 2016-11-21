@@ -8,6 +8,7 @@ jupyter:
     - ./jupyter:/home/ds/notebooks
     - ./jupyter/jupyter:/home/ds/.jupyter
   restart: always
+  #command: sh spiders.sh 5
   environment:
     - MONGO_HOST=ds021166.mlab.com
     - MONGO_PORT=21166
@@ -37,20 +38,6 @@ server:
     - ./server:/opt
   command: python -u /opt/runRest.py
   environment:
-    - MONGO_HOST=ds021166.mlab.com
-    - MONGO_PORT=21166
-    - MONGO_USER=webir-user
-    - MONGO_PASS=2qdCWrShyzNSpsV
-    - MONGO_COLL=api-data
-    - MONGO_DATABASE=webir-2016
-
-football-api-communication:
- build: ./football-api-communication
- volumes:
-   - ./football-api-communication:/opt
-   - ./libs:/opt/libs
- #command: python -u runspider /opt/marca.py
- environment:
     - MONGO_HOST=ds021166.mlab.com
     - MONGO_PORT=21166
     - MONGO_USER=webir-user
