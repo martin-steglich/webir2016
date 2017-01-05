@@ -10,12 +10,12 @@ jupyter:
   restart: always
   #command: sh spiders.sh 5
   environment:
-    - MONGO_HOST=ds021166.mlab.com
-    - MONGO_PORT=21166
-    - MONGO_USER=webir-user
-    - MONGO_PASS=2qdCWrShyzNSpsV
-    - MONGO_COLL=api-data
-    - MONGO_DATABASE=webir-2016
+    - MONGO_HOST=MONGO_HOST
+    - MONGO_PORT=MONGO_PORT
+    - MONGO_USER=MONGO_USER
+    - MONGO_PASS=MONGO_PASS
+    - MONGO_COLL=MONGO_COLL
+    - MONGO_DATABASE=MONGO_DATABASE
 
 #Web
 web:
@@ -38,9 +38,9 @@ server:
     - ./server:/opt
   command: python -u /opt/runRest.py
   environment:
-    - MONGO_HOST=ds021166.mlab.com
-    - MONGO_PORT=21166
-    - MONGO_USER=webir-user
-    - MONGO_PASS=2qdCWrShyzNSpsV
-    - MONGO_COLL=api-data
-    - MONGO_DATABASE=webir-2016
+    - MONGO_HOST=MONGO_HOST
+    - MONGO_PORT=MONGO_PORT
+    - MONGO_USER=MONGO_USER
+    - MONGO_PASS=MONGO_PASS
+    - MONGO_COLL=MONGO_COLL
+    - MONGO_DATABASE=MONGO_DATABASE
